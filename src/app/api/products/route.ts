@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
     );
 
     const categories = getDistinctCategories();
-    const networks = getDistinctNetworks();
+    const networks = getDistinctNetworks().filter((n) => n.toLowerCase() !== 'impact');
     const stats = getProductStats();
 
     return NextResponse.json({

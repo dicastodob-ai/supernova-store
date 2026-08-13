@@ -13,8 +13,8 @@ export const products: Product[] = [
     category: 'electronics',
     tags: ['headphones', 'wireless', 'audio', 'noise-canceling', 'sony'],
     affiliate: {
-      network: 'impact',
-      url: 'https://supernovastore.humancentric.online/affiliate/impact/sony-wh1000xm5',
+      network: 'cj',
+      url: 'https://supernovastore.humancentric.online/affiliate/cj/sony-wh1000xm5',
       advertiserId: 'tech-haven-33',
       campaignId: 'summer-sale-2025'
     },
@@ -51,8 +51,8 @@ export const products: Product[] = [
     category: 'home',
     tags: ['smart-home', 'security', 'hub', 'iot'],
     affiliate: {
-      network: 'impact',
-      url: 'https://supernovastore.humancentric.online/affiliate/impact/smart-hub',
+      network: 'cj',
+      url: 'https://supernovastore.humancentric.online/affiliate/cj/smart-hub',
       advertiserId: 'homebase-12',
     },
     isActive: true,
@@ -89,8 +89,8 @@ export const products: Product[] = [
     category: 'sports',
     tags: ['yoga', 'fitness', 'mat', 'eco-friendly', 'workout'],
     affiliate: {
-      network: 'impact',
-      url: 'https://supernovastore.humancentric.online/affiliate/impact/yoga-mat',
+      network: 'cj',
+      url: 'https://supernovastore.humancentric.online/affiliate/cj/yoga-mat',
       advertiserId: 'zen-fit-99',
     },
     isActive: true,
@@ -126,8 +126,8 @@ export const products: Product[] = [
     category: 'electronics',
     tags: ['keyboard', 'gaming', 'mechanical', 'rgb', 'pc'],
     affiliate: {
-      network: 'impact',
-      url: 'https://supernovastore.humancentric.online/affiliate/impact/mech-keyboard',
+      network: 'cj',
+      url: 'https://supernovastore.humancentric.online/affiliate/cj/mech-keyboard',
       advertiserId: 'tech-haven-33',
     },
     isActive: true,

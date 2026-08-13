@@ -9,7 +9,7 @@ import Pagination from '@/components/Pagination';
 export default function HomePage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
-  const [networks, setNetworks] = useState<string[]>(['impact', 'cj']);
+  const [networks, setNetworks] = useState<string[]>(['cj']);
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [activeNetwork, setActiveNetwork] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'latest' | 'price_asc' | 'price_desc'>('latest');
@@ -54,7 +54,7 @@ export default function HomePage() {
           setCategories(data.categories);
         }
         if (data.networks && data.networks.length > 0) {
-          setNetworks(data.networks);
+          setNetworks(data.networks.filter((n: string) => n.toLowerCase() !== 'impact'));
         }
       });
     } catch (err) {

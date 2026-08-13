@@ -28,7 +28,7 @@ export default function FilterBar({
   totalProducts,
 }: FilterBarProps) {
   const allCategories = ['all', ...categories.filter((c) => c !== 'all')];
-  const allNetworks = ['all', ...networks.filter((n) => n !== 'all')];
+  const allNetworks = ['all', ...networks.filter((n) => n !== 'all' && n.toLowerCase() !== 'impact')];
 
   return (
     <div className="space-y-6 mb-12 font-courier">
