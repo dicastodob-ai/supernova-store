@@ -51,10 +51,9 @@ function initSchema(db: Database.Database) {
     CREATE INDEX IF NOT EXISTS idx_products_merchant ON products(merchant);
 
     CREATE VIRTUAL TABLE IF NOT EXISTS products_fts USING fts5(
-      id UNINDEXED,
       title,
-      description,
       merchant,
+      category,
       tags,
       content='products',
       content_rowid='rowid'
@@ -62,20 +61,20 @@ function initSchema(db: Database.Database) {
 
     -- Triggers to keep FTS in sync
     CREATE TRIGGER IF NOT EXISTS products_ai AFTER INSERT ON products BEGIN
-      INSERT INTO products_fts(rowid, id, title, description, merchant, tags)
-      VALUES (new.rowid, new.id, new.title, new.description, new.merchant, new.tags);
+      INSERT INTO products_fts(rowid, title, merchant, category, tags)
+      VALUES (new.rowid, new.title, new.merchant, new.category, new.tags);
     END;
 
     CREATE TRIGGER IF NOT EXISTS products_ad AFTER DELETE ON products BEGIN
-      INSERT INTO products_fts(products_fts, rowid, id, title, description, merchant, tags)
-      VALUES('delete', old.rowid, old.id, old.title, old.description, old.merchant, old.tags);
+      INSERT INTO products_fts(products_fts, rowid, title, merchant, category, tags)
+      VALUES('delete', old.rowid, old.title, old.merchant, old.category, old.tags);
     END;
 
     CREATE TRIGGER IF NOT EXISTS products_au AFTER UPDATE ON products BEGIN
-      INSERT INTO products_fts(products_fts, rowid, id, title, description, merchant, tags)
-      VALUES('delete', old.rowid, old.id, old.title, old.description, old.merchant, old.tags);
-      INSERT INTO products_fts(rowid, id, title, description, merchant, tags)
-      VALUES (new.rowid, new.id, new.title, new.description, new.merchant, new.tags);
+      INSERT INTO products_fts(products_fts, rowid, title, merchant, category, tags)
+      VALUES('delete', old.rowid, old.title, old.merchant, old.category, old.tags);
+      INSERT INTO products_fts(rowid, title, merchant, category, tags)
+      VALUES (new.rowid, new.title, new.merchant, new.category, new.tags);
     END;
   `);
 }

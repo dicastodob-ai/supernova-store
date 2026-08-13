@@ -73,10 +73,22 @@ export function getProductById(id: string): Product | undefined {
   return fallbackProducts.find((p) => p.id === id && p.isActive);
 }
 
+export const PRODUCTION_BASE_URL = 'https://supernovastore.humancentric.online';
+
+/**
+ * Get base URL with fallback to official production domain.
+ */
+export function getBaseUrl(): string {
+  return process.env.NEXT_PUBLIC_BASE_URL || PRODUCTION_BASE_URL;
+}
+
 /**
  * Build the masked affiliate redirect URL.
  */
-export function getAffiliateRedirectUrl(productId: string): string {
+export function getAffiliateRedirectUrl(productId: string, absolute = false): string {
+  if (absolute) {
+    return `${getBaseUrl()}/go/${productId}`;
+  }
   return `/go/${productId}`;
 }
 

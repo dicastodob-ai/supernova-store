@@ -167,7 +167,7 @@ function generateSynthetic143kFeed(targetPath, count = 143000) {
       const category = template.cat;
       const network = networks[i % networks.length];
       const merchant = merchants[i % merchants.length];
-      const affUrl = `https://example.com/affiliate/${network}/${merchant.toLowerCase().replace(/[^a-z0-9]/g, '')}/prod-${i}`;
+      const affUrl = `https://supernovastore.humancentric.online/affiliate/${network}/${merchant.toLowerCase().replace(/[^a-z0-9]/g, '')}/prod-${i}`;
       const imgUrl = `https://picsum.photos/seed/p${(i % 1000) + 1}/600/800`;
       const tags = `${category},${noun.toLowerCase()},monochrome,minimal`;
 
@@ -270,7 +270,7 @@ async function importFeed(csvPath) {
 
     const affiliateUrl = (colMap.affiliateUrl !== -1 && cols[colMap.affiliateUrl])
       ? cols[colMap.affiliateUrl]
-      : `https://example.com/affiliate/direct/${id}`;
+      : `https://supernovastore.humancentric.online/affiliate/direct/${id}`;
 
     const imageUrl = (colMap.imageUrl !== -1 && cols[colMap.imageUrl])
       ? cols[colMap.imageUrl]

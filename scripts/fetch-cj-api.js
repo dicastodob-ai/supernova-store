@@ -359,7 +359,7 @@ async function main() {
         const price = item.price?.amount || 0;
         const salePrice = item.salePrice?.amount && item.salePrice.amount < price ? item.salePrice.amount : null;
         const currency = item.price?.currency || 'USD';
-        const affiliateUrl = item.link || `https://example.com/cj/${item.id}`;
+        const affiliateUrl = item.link || `https://supernovastore.humancentric.online/cj/${item.id}`;
         const imageUrl = item.imageLink || `https://picsum.photos/seed/cj_${item.id}/600/800`;
         const tags = `cj,${category},${brand.toLowerCase().replace(/[^a-z0-9]/g, '')}`;
 
