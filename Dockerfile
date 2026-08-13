@@ -45,8 +45,8 @@ ENV HOSTNAME="0.0.0.0"
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
-# Create data directory for SQLite with proper write permissions for nextjs user
-RUN mkdir -p /app/data && chown -R nextjs:nodejs /app/data
+# Create data and public directories with proper write permissions for nextjs user
+RUN mkdir -p /app/data /app/public && chown -R nextjs:nodejs /app/data /app/public
 
 # Copy built standalone server and static assets
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
