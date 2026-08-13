@@ -1,0 +1,33 @@
+# Git & VCS
+.git
+.gitignore
+
+# Dependencies & Build artifacts
+node_modules
+.next
+out
+build
+dist
+
+# Logs & temp files
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+.turbo
+
+# Environment files
+.env*.local
+.env
+
+# System & IDE files
+.DS_Store
+Thumbs.db
+.vscode
+.idea
+
+# Export files and large scratch items
+productos_wordpress.csv
+*.zip
+*.tar.gz

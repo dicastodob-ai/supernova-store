@@ -1,0 +1,41 @@
+# ==============================================================================
+# Render Blueprint Specification — Supernova Store (Production)
+# Deploy with 1-click: https://render.com/deploy
+# ==============================================================================
+
+services:
+  - type: web
+    name: supernova-store
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: free # or 'starter' if persistent disk is attached
+    region: frankfurt # or 'oregon', 'ohio', 'singapore'
+    autoDeploy: true
+
+    # Health check path for zero-downtime rolling deploys
+    healthCheckPath: /api/products?page=1&pageSize=1
+
+    # Optional Persistent Disk for SQLite database across redeploys
+    # Note: Render Disks require a paid instance type (Starter $7/mo)
+    # On Free plan, SQLite runs in ephemeral container storage with auto-seed fallback
+    # disk:
+    #   name: supernova-data
+    #   mountPath: /app/data
+    #   sizeGB: 1
+
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: HOSTNAME
+        value: 0.0.0.0
+      - key: NEXT_TELEMETRY_DISABLED
+        value: "1"
+      - key: CJ_PERSONAL_ACCESS_TOKEN
+        value: hUKoNNFZLA4PeWxd8JS0KN726w
+      - key: CJ_COMPANY_ID
+        value: "7999396"
+      - key: CJ_SYNC_MAX
+        value: "20000"
