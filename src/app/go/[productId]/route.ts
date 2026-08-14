@@ -5,57 +5,64 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ productId: string }> }
 ) {
-  const { productId } = await params;
-  const product = getProductById(productId);
   const publicBaseUrl = getPublicBaseUrl(request);
 
-  if (!product) {
-    // Graceful fallback to official store home page
-    const homeUrl = new URL('/', publicBaseUrl);
-    return NextResponse.redirect(homeUrl.toString(), 302);
-  }
+  try {
+    const { productId } = await params;
+    const product = getProductById(productId);
 
-  const rawUrl = product.affiliate.url || '';
-
-  // Check if URL is an external affiliate destination (real CJ link or merchant checkout)
-  const isExternalAffiliate =
-    rawUrl.startsWith('http://') || rawUrl.startsWith('https://')
-      ? !rawUrl.includes('supernovastore.humancentric.online/affiliate') &&
-        !rawUrl.includes('example.com') &&
-        !rawUrl.includes('google.com') &&
-        !rawUrl.includes('0.0.0.0') &&
-        !rawUrl.includes('localhost')
-      : false;
-
-  if (isExternalAffiliate) {
-    try {
-      const affiliateUrl = new URL(rawUrl);
-
-      // Append UTM parameters for tracking (always CJ)
-      affiliateUrl.searchParams.set('utm_source', 'supernova');
-      affiliateUrl.searchParams.set('utm_medium', 'affiliate');
-      affiliateUrl.searchParams.set('utm_campaign', 'cj');
-
-      // Forward any incoming query parameters
-      const incomingParams = request.nextUrl.searchParams;
-      incomingParams.forEach((value, key) => {
-        if (!key.startsWith('utm_')) {
-          affiliateUrl.searchParams.set(key, value);
-        }
-      });
-
-      console.log(
-        `[AFFILIATE CLICK] Product: ${product.id} | Merchant: ${product.merchant} -> ${affiliateUrl.hostname}`
-      );
-
-      return NextResponse.redirect(affiliateUrl.toString(), 302);
-    } catch {
-      // Fallback if URL parsing fails
+    if (!product) {
+      // Graceful fallback to official store home page
+      const homeUrl = new URL('/', publicBaseUrl);
+      return NextResponse.redirect(homeUrl.toString(), 302);
     }
-  }
 
-  // If internal/missing, redirect gracefully to official storefront with product search (never 0.0.0.0)
-  const fallbackStore = new URL('/', publicBaseUrl);
-  fallbackStore.searchParams.set('search', product.title);
-  return NextResponse.redirect(fallbackStore.toString(), 302);
+    const rawUrl = product.affiliate.url || '';
+
+    // Check if URL is an external affiliate destination (real CJ link or merchant checkout)
+    const isExternalAffiliate =
+      rawUrl.startsWith('http://') || rawUrl.startsWith('https://')
+        ? !rawUrl.includes('supernovastore.humancentric.online/affiliate') &&
+          !rawUrl.includes('example.com') &&
+          !rawUrl.includes('google.com') &&
+          !rawUrl.includes('0.0.0.0') &&
+          !rawUrl.includes('localhost')
+        : false;
+
+    if (isExternalAffiliate) {
+      try {
+        const affiliateUrl = new URL(rawUrl);
+
+        // Append UTM parameters for tracking (always CJ)
+        affiliateUrl.searchParams.set('utm_source', 'supernova');
+        affiliateUrl.searchParams.set('utm_medium', 'affiliate');
+        affiliateUrl.searchParams.set('utm_campaign', 'cj');
+
+        // Forward any incoming query parameters
+        const incomingParams = request.nextUrl.searchParams;
+        incomingParams.forEach((value, key) => {
+          if (!key.startsWith('utm_')) {
+            affiliateUrl.searchParams.set(key, value);
+          }
+        });
+
+        console.log(
+          `[AFFILIATE CLICK] Product: ${product.id} | Merchant: ${product.merchant} -> ${affiliateUrl.hostname}`
+        );
+
+        return NextResponse.redirect(affiliateUrl.toString(), 302);
+      } catch (urlErr) {
+        console.warn('[AFFILIATE_CLICK_URL_PARSE_WARN]', urlErr);
+      }
+    }
+
+    // If internal/missing, redirect gracefully to official storefront with product search
+    const fallbackStore = new URL('/', publicBaseUrl);
+    fallbackStore.searchParams.set('search', product.title);
+    return NextResponse.redirect(fallbackStore.toString(), 302);
+  } catch (fatalErr) {
+    console.error('[GO_ROUTE_FATAL]', fatalErr);
+    // Bulletproof fallback to homepage to prevent 502 Bad Gateway
+    return NextResponse.redirect(publicBaseUrl, 302);
+  }
 }
