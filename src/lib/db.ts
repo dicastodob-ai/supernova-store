@@ -178,14 +178,17 @@ export function queryProducts(
       if (cat === 'tech') {
         whereClauses.push("(category = 'electronics' OR tags LIKE '%software%' OR tags LIKE '%tech%')");
         hasFilters = true;
-      } else if (cat === 'travel') {
-        whereClauses.push("(category = 'home' AND (LOWER(merchant) = 'booking.com' OR tags LIKE '%travel%' OR tags LIKE '%stay%'))");
+      } else if (cat === 'electronics') {
+        whereClauses.push("(category = 'electronics' OR tags LIKE '%audio%' OR tags LIKE '%gadgets%')");
         hasFilters = true;
       } else if (cat === 'media') {
         whereClauses.push("(category = 'books' OR LOWER(merchant) = 'zinio' OR tags LIKE '%magazines%' OR tags LIKE '%press%')");
         hasFilters = true;
       } else if (cat === 'lifestyle') {
-        whereClauses.push("(category IN ('fashion', 'accessories', 'beauty', 'sports', 'home') AND LOWER(merchant) != 'booking.com')");
+        whereClauses.push("(category IN ('fashion', 'accessories', 'beauty', 'sports', 'home'))");
+        hasFilters = true;
+      } else if (cat === 'fashion') {
+        whereClauses.push("(category IN ('fashion', 'accessories'))");
         hasFilters = true;
       } else {
         whereClauses.push('category = @category');
@@ -196,14 +199,17 @@ export function queryProducts(
 
     if (filters?.network && filters.network !== ('all' as unknown as AffiliateNetwork)) {
       const net = String(filters.network).toLowerCase();
-      if (net === 'aliexpress') {
-        whereClauses.push("(LOWER(merchant) LIKE '%aliexpress%' OR tags LIKE '%aliexpress%')");
-        hasFilters = true;
-      } else if (net === 'booking') {
-        whereClauses.push("(LOWER(merchant) LIKE '%booking%' OR tags LIKE '%booking%')");
-        hasFilters = true;
-      } else if (net === 'zinio') {
+      if (net === 'zinio') {
         whereClauses.push("(LOWER(merchant) LIKE '%zinio%' OR tags LIKE '%zinio%')");
+        hasFilters = true;
+      } else if (net === 'ashampoo') {
+        whereClauses.push("(LOWER(merchant) LIKE '%ashampoo%' OR tags LIKE '%ashampoo%')");
+        hasFilters = true;
+      } else if (net === 'wondershare') {
+        whereClauses.push("(LOWER(merchant) LIKE '%wondershare%' OR tags LIKE '%wondershare%')");
+        hasFilters = true;
+      } else if (net === 'whokeys') {
+        whereClauses.push("(LOWER(merchant) LIKE '%whokeys%' OR tags LIKE '%whokeys%')");
         hasFilters = true;
       } else if (net === 'cj') {
         whereClauses.push("network = 'cj'");

@@ -37,7 +37,7 @@ export default function FilterBar({
             type="text"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Search catalog (e.g. Booking, AliExpress, Wondershare)..."
+            placeholder="Search catalog (e.g. Zinio, Wondershare, Ashampoo, Whokeys)..."
             className="w-full bg-white text-[#2D3142] text-xs py-3 px-4 rounded-full border border-[#ECECE8] placeholder:text-[#5C6479]/50 focus:outline-none focus:border-[#D96B27] focus:ring-2 focus:ring-[#D96B27]/20 transition-all shadow-sm"
           />
           {searchQuery && (

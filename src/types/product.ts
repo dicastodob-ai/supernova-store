@@ -2,10 +2,10 @@
  * Supernova Store — Affiliate Product Data Model
  *
  * Defines the core data structures for products sourced
- * from affiliate networks (Impact, CJ Affiliate).
+ * from affiliate networks (CJ Affiliate).
  */
 
-export type AffiliateNetwork = 'impact' | 'cj' | 'direct';
+export type AffiliateNetwork = 'cj' | 'impact' | 'direct';
 
 export type ProductCategory =
   | 'electronics'
@@ -16,7 +16,6 @@ export type ProductCategory =
   | 'books'
   | 'accessories'
   | 'tech'
-  | 'travel'
   | 'media'
   | 'lifestyle'
   | 'all';
@@ -27,14 +26,15 @@ export interface CategoryOption {
 }
 
 /**
- * Configuración de categorías frontend
+ * Configuración de categorías frontend limpias y estables
  */
 export const CATEGORIES: CategoryOption[] = [
   { id: 'all', label: 'All Categories' },
   { id: 'tech', label: 'Tech & Software' },
-  { id: 'travel', label: 'Travel & Stays' },
+  { id: 'electronics', label: 'Electronics & Audio' },
   { id: 'media', label: 'Magazines & Press' },
-  { id: 'lifestyle', label: 'Lifestyle' }
+  { id: 'lifestyle', label: 'Home & Lifestyle' },
+  { id: 'fashion', label: 'Fashion & Apparel' },
 ];
 
 export interface NetPresetOption {
@@ -43,14 +43,15 @@ export interface NetPresetOption {
 }
 
 /**
- * Configuración de presets para selector 'net'
+ * Configuración de presets para selector 'net' (anunciantes verificados estables)
  */
 export const NET_PRESETS: NetPresetOption[] = [
   { id: 'all', label: 'All' },
   { id: 'cj', label: 'CJ Network' },
   { id: 'zinio', label: 'Zinio' },
   { id: 'ashampoo', label: 'Ashampoo' },
-  { id: 'wondershare', label: 'Wondershare' }
+  { id: 'wondershare', label: 'Wondershare' },
+  { id: 'whokeys', label: 'Whokeys' },
 ];
 
 export interface FilterParams {
@@ -74,6 +75,10 @@ export const parseCatalogQuery = (netQuery?: string, categoryQuery?: string): Fi
       break;
     case 'wondershare':
       filters.merchant = 'Wondershare';
+      filters.category = 'tech';
+      break;
+    case 'whokeys':
+      filters.merchant = 'Whokeys';
       filters.category = 'tech';
       break;
     case 'cj':

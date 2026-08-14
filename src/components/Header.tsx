@@ -8,7 +8,7 @@ export default function Header() {
           <span className="w-2.5 h-2.5 rounded-full bg-[#D96B27] inline-block"></span>
           SUPERNOVA
         </Link>
-        <nav className="flex items-center gap-5 md:gap-8">
+        <nav className="flex items-center gap-4 sm:gap-6 md:gap-8">
           <Link
             href="/"
             className="text-xs font-bold tracking-wider uppercase text-[#0B2545] hover:text-[#D96B27] transition-colors"
@@ -22,10 +22,10 @@ export default function Header() {
             Tech & Software
           </Link>
           <Link
-            href="/?category=travel"
+            href="/?category=electronics"
             className="text-xs font-bold tracking-wider uppercase text-[#0B2545] hover:text-[#D96B27] transition-colors hidden sm:inline-block"
           >
-            Travel & Stays
+            Electronics
           </Link>
           <Link
             href="/?category=media"
