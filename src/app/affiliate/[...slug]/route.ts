@@ -59,9 +59,21 @@ export async function GET(
           !rawUrl.includes('localhost')
         : false;
 
+    let targetUrl = rawUrl;
+    if (
+      targetUrl.startsWith('http') &&
+      !targetUrl.includes('anrdoezrs.net') &&
+      !targetUrl.includes('tkqlhce.com') &&
+      !targetUrl.includes('dpbolvw.net') &&
+      !targetUrl.includes('jdoqocy.com') &&
+      !targetUrl.includes('supernovastore.humancentric.online')
+    ) {
+      targetUrl = `https://www.anrdoezrs.net/links/7999396/type/dlg/sid/supernova/${targetUrl}`;
+    }
+
     if (isExternalAffiliate) {
       try {
-        const destinationUrl = new URL(rawUrl);
+        const destinationUrl = new URL(targetUrl);
 
         // Standard CJ affiliate tracking UTM parameters
         destinationUrl.searchParams.set('utm_source', 'supernova');
@@ -77,7 +89,7 @@ export async function GET(
         });
 
         console.log(
-          `[AFFILIATE_ROUTE] Redirecting to CJ merchant: ${product.id} -> ${destinationUrl.hostname}`
+          `[AFFILIATE_ROUTE] Redirecting to CJ tracking link: ${product.id} -> ${destinationUrl.hostname}`
         );
         return NextResponse.redirect(destinationUrl.toString(), 302);
       } catch (e) {

@@ -29,9 +29,21 @@ export async function GET(
           !rawUrl.includes('localhost')
         : false;
 
+    let targetUrl = rawUrl;
+    if (
+      targetUrl.startsWith('http') &&
+      !targetUrl.includes('anrdoezrs.net') &&
+      !targetUrl.includes('tkqlhce.com') &&
+      !targetUrl.includes('dpbolvw.net') &&
+      !targetUrl.includes('jdoqocy.com') &&
+      !targetUrl.includes('supernovastore.humancentric.online')
+    ) {
+      targetUrl = `https://www.anrdoezrs.net/links/7999396/type/dlg/sid/supernova/${targetUrl}`;
+    }
+
     if (isExternalAffiliate) {
       try {
-        const affiliateUrl = new URL(rawUrl);
+        const affiliateUrl = new URL(targetUrl);
 
         // Append UTM parameters for tracking (always CJ)
         affiliateUrl.searchParams.set('utm_source', 'supernova');

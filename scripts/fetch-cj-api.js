@@ -27,7 +27,7 @@ const Database = require('better-sqlite3');
 
 const CJ_GRAPHQL_ENDPOINT = 'https://ads.api.cj.com/query';
 const DEFAULT_TOKEN = process.env.CJ_PERSONAL_ACCESS_TOKEN || 'hUKoNNFZLA4PeWxd8JS0KN726w';
-const DEFAULT_CID = process.env.CJ_COMPANY_ID || '';
+const DEFAULT_CID = process.env.CJ_COMPANY_ID || '7999396';
 
 const PROJECT_ROOT = path.resolve(__dirname, '..');
 const DATA_DIR = path.join(PROJECT_ROOT, 'data');
