@@ -13,8 +13,8 @@ services:
     region: frankfurt # or 'oregon', 'ohio', 'singapore'
     autoDeploy: true
 
-    # Health check path for zero-downtime rolling deploys
-    healthCheckPath: /api/products?page=1&pageSize=1
+    # Fast, lightweight health check path for zero-downtime rolling deploys
+    healthCheckPath: /api/health
 
     # Optional Persistent Disk for SQLite database across redeploys
     # Note: Render Disks require a paid instance type (Starter $7/mo)

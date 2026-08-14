@@ -11,7 +11,8 @@ export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
 
   const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
-  const pageSize = Math.min(100, Math.max(1, parseInt(searchParams.get('pageSize') || '24', 10)));
+  // Strict limit: maximum 48 items per page to prevent memory exhaustion
+  const pageSize = Math.min(48, Math.max(1, parseInt(searchParams.get('pageSize') || '24', 10)));
   const category = searchParams.get('category') || undefined;
   const network = searchParams.get('network') || undefined;
   const search = searchParams.get('search') || undefined;
@@ -42,12 +43,20 @@ export async function GET(request: NextRequest) {
     const networks = getDistinctNetworks().filter((n) => n.toLowerCase() !== 'impact');
     const stats = getProductStats();
 
-    return NextResponse.json({
-      ...result,
-      categories,
-      networks,
-      stats,
-    });
+    return NextResponse.json(
+      {
+        ...result,
+        categories,
+        networks,
+        stats,
+      },
+      {
+        status: 200,
+        headers: {
+          'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
+        },
+      }
+    );
   } catch (error) {
     console.error('[API_PRODUCTS_ERROR]', error);
     return NextResponse.json(
