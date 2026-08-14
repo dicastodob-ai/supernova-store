@@ -37,6 +37,22 @@ export const CATEGORIES: CategoryOption[] = [
   { id: 'lifestyle', label: 'Lifestyle' }
 ];
 
+export interface NetPresetOption {
+  id: string;
+  label: string;
+}
+
+/**
+ * Configuración de presets para selector 'net'
+ */
+export const NET_PRESETS: NetPresetOption[] = [
+  { id: 'all', label: 'All' },
+  { id: 'cj', label: 'CJ Network' },
+  { id: 'aliexpress', label: 'AliExpress' },
+  { id: 'booking', label: 'Booking.com' },
+  { id: 'zinio', label: 'Zinio' }
+];
+
 export interface AffiliateLink {
   /** The affiliate network this link belongs to */
   network: AffiliateNetwork;

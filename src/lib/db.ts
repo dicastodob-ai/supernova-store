@@ -195,9 +195,24 @@ export function queryProducts(
     }
 
     if (filters?.network && filters.network !== ('all' as unknown as AffiliateNetwork)) {
-      whereClauses.push('network = @network');
-      params.network = filters.network;
-      hasFilters = true;
+      const net = String(filters.network).toLowerCase();
+      if (net === 'aliexpress') {
+        whereClauses.push("(LOWER(merchant) LIKE '%aliexpress%' OR tags LIKE '%aliexpress%')");
+        hasFilters = true;
+      } else if (net === 'booking') {
+        whereClauses.push("(LOWER(merchant) LIKE '%booking%' OR tags LIKE '%booking%')");
+        hasFilters = true;
+      } else if (net === 'zinio') {
+        whereClauses.push("(LOWER(merchant) LIKE '%zinio%' OR tags LIKE '%zinio%')");
+        hasFilters = true;
+      } else if (net === 'cj') {
+        whereClauses.push("network = 'cj'");
+        hasFilters = true;
+      } else {
+        whereClauses.push('network = @network');
+        params.network = filters.network;
+        hasFilters = true;
+      }
     }
 
     if (filters?.minPrice !== undefined) {

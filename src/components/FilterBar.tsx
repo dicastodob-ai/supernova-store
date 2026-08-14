@@ -1,10 +1,10 @@
 'use client';
 
-import { CATEGORIES } from '@/types/product';
+import { CATEGORIES, NET_PRESETS } from '@/types/product';
 
 interface FilterBarProps {
   categories?: string[];
-  networks: string[];
+  networks?: string[];
   activeCategory: string;
   activeNetwork: string;
   sortBy: 'latest' | 'price_asc' | 'price_desc';
@@ -17,7 +17,6 @@ interface FilterBarProps {
 }
 
 export default function FilterBar({
-  networks,
   activeCategory,
   activeNetwork,
   sortBy,
@@ -28,8 +27,6 @@ export default function FilterBar({
   onSearchChange,
   totalProducts,
 }: FilterBarProps) {
-  const allNetworks = ['all', ...networks.filter((n) => n !== 'all' && n.toLowerCase() !== 'impact')];
-
   return (
     <div className="space-y-6 mb-12 font-courier">
       {/* Search & Sort Controls */}
@@ -54,24 +51,24 @@ export default function FilterBar({
           )}
         </div>
 
-        {/* Network & Sort Filters */}
+        {/* Network Presets & Sort Filters */}
         <div className="flex flex-wrap items-center gap-3">
-          {/* Network Filter */}
+          {/* NET Presets Filter */}
           <div className="flex items-center gap-1 border border-black p-0.5">
             <span className="text-[9px] uppercase tracking-widest px-2 opacity-50 select-none">
               NET:
             </span>
-            {allNetworks.map((net) => (
+            {NET_PRESETS.map((preset) => (
               <button
-                key={net}
-                onClick={() => onNetworkChange(net)}
+                key={preset.id}
+                onClick={() => onNetworkChange(preset.id)}
                 className={`text-[10px] tracking-wider uppercase px-2.5 py-1 transition-colors ${
-                  activeNetwork === net
+                  activeNetwork.toLowerCase() === preset.id.toLowerCase()
                     ? 'bg-black text-white'
                     : 'bg-transparent text-black hover:opacity-60'
                 }`}
               >
-                {net}
+                {preset.label}
               </button>
             ))}
           </div>
