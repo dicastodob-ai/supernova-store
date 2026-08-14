@@ -53,6 +53,44 @@ export const NET_PRESETS: NetPresetOption[] = [
   { id: 'zinio', label: 'Zinio' }
 ];
 
+export interface FilterParams {
+  category?: string;
+  network?: string;
+  merchant?: string;
+}
+
+export const parseCatalogQuery = (netQuery?: string, categoryQuery?: string): FilterParams => {
+  const filters: FilterParams = {};
+
+  // Resolución del selector NET / Merchant
+  switch (netQuery?.toLowerCase()) {
+    case 'aliexpress':
+      filters.merchant = 'AliExpress';
+      break;
+    case 'booking':
+      filters.merchant = 'Booking.com';
+      filters.category = 'travel';
+      break;
+    case 'zinio':
+      filters.merchant = 'Zinio';
+      filters.category = 'media';
+      break;
+    case 'cj':
+      filters.network = 'CJ';
+      break;
+    case 'all':
+    default:
+      break;
+  }
+
+  // Si se selecciona una categoría explícita, tiene prioridad sobre la vertical inferida
+  if (categoryQuery && categoryQuery !== 'all') {
+    filters.category = categoryQuery.toLowerCase();
+  }
+
+  return filters;
+};
+
 export interface AffiliateLink {
   /** The affiliate network this link belongs to */
   network: AffiliateNetwork;

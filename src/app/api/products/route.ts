@@ -5,7 +5,7 @@ import {
   getDistinctNetworks,
   getProductStats,
 } from '@/lib/db';
-import { ProductCategory, AffiliateNetwork } from '@/types/product';
+import { ProductCategory, AffiliateNetwork, parseCatalogQuery } from '@/types/product';
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -13,26 +13,33 @@ export async function GET(request: NextRequest) {
   const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
   // Strict limit: maximum 48 items per page to prevent memory exhaustion
   const pageSize = Math.min(48, Math.max(1, parseInt(searchParams.get('pageSize') || '24', 10)));
-  const category = searchParams.get('category') || undefined;
-  const network = searchParams.get('network') || undefined;
+  
+  const rawCategory = searchParams.get('category') || undefined;
+  const rawNetwork = searchParams.get('network') || undefined;
   const search = searchParams.get('search') || undefined;
   const minPriceStr = searchParams.get('minPrice');
   const maxPriceStr = searchParams.get('maxPrice');
-  const merchant = searchParams.get('merchant') || undefined;
+  const explicitMerchant = searchParams.get('merchant') || undefined;
   const sortBy = (searchParams.get('sortBy') as 'latest' | 'price_asc' | 'price_desc') || 'latest';
 
   const minPrice = minPriceStr ? parseFloat(minPriceStr) : undefined;
   const maxPrice = maxPriceStr ? parseFloat(maxPriceStr) : undefined;
 
+  // Resolve preset mappings using parseCatalogQuery
+  const parsedFilters = parseCatalogQuery(rawNetwork, rawCategory);
+  const resolvedCategory = parsedFilters.category || rawCategory;
+  const resolvedNetwork = parsedFilters.network || rawNetwork;
+  const resolvedMerchant = explicitMerchant || parsedFilters.merchant;
+
   try {
     const result = queryProducts(
       {
-        category: category && category !== 'all' ? (category as ProductCategory) : undefined,
-        network: network && network !== 'all' ? (network as AffiliateNetwork) : undefined,
+        category: resolvedCategory && resolvedCategory !== 'all' ? (resolvedCategory as ProductCategory) : undefined,
+        network: resolvedNetwork && resolvedNetwork.toLowerCase() !== 'all' ? (resolvedNetwork.toLowerCase() as AffiliateNetwork) : undefined,
         minPrice: !isNaN(minPrice!) ? minPrice : undefined,
         maxPrice: !isNaN(maxPrice!) ? maxPrice : undefined,
         search,
-        merchant,
+        merchant: resolvedMerchant,
       },
       page,
       pageSize,
