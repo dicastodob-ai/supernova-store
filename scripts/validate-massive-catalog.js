@@ -4,7 +4,7 @@
  * Lead Data Engineer Pipeline:
  * 1. Stream-reads feeds and applies strict merchant exclusion blacklist:
  *    - EXCLUDED: Booking.com and AliExpress (high-volatility / 404 expiration rate).
- * 2. Normalizes all remaining approved products to official CJ deep-link tracking links.
+ * 2. Normalizes all remaining approved products to official CJ deep-link tracking links targeting external merchant checkouts.
  * 3. Commits chunked batches to SQLite (data/supernova.db), purging any blacklisted or dead items.
  * 4. Rebuilds FTS5 full-text search index and optimizes database footprint (VACUUM / checkpoint).
  * 5. Exports clean operational dataset to data.json, public/data.json, and public/data/products.json.
@@ -37,36 +37,55 @@ const MERCHANT_FALLBACKS = {
   'wondershare': 'https://www.anrdoezrs.net/links/7999396/type/dlg/sid/supernova/https://www.wondershare.com/',
   'ashampoo': 'https://www.anrdoezrs.net/links/7999396/type/dlg/sid/supernova/https://www.ashampoo.com/',
   'whokeys': 'https://www.anrdoezrs.net/links/7999396/type/dlg/sid/supernova/https://www.whokeys.com/',
+  'abracadabra': 'https://www.anrdoezrs.net/links/7999396/type/dlg/sid/supernova/https://abracadabranyc.com/',
   'abracadabranyc': 'https://www.anrdoezrs.net/links/7999396/type/dlg/sid/supernova/https://abracadabranyc.com/',
 };
 
 /**
  * Comprueba si un registro pertenece a la lista negra
  */
-function isBlacklisted(merchant = '', url = '') {
+function isBlacklisted(merchant = '', url = '', title = '') {
   const mLower = String(merchant).toLowerCase();
   const uLower = String(url).toLowerCase();
+  const tLower = String(title).toLowerCase();
   return BLACKLISTED_MERCHANTS.some(
-    (bad) => mLower.includes(bad) || uLower.includes(bad)
+    (bad) => mLower.includes(bad) || uLower.includes(bad) || tLower.includes(bad)
   );
 }
 
 /**
- * Normaliza y construye la URL de tracking de CJ garantizada
+ * Normaliza y construye la URL de tracking de CJ garantizada hacia el comercio externo
  */
-function normalizeCJUrl(rawUrl, merchant = '') {
+function normalizeCJUrl(rawUrl, merchant = '', id = '') {
+  const mKey = (merchant || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+
   if (!rawUrl || typeof rawUrl !== 'string') {
-    const mKey = merchant.toLowerCase().replace(/[^a-z0-9]/g, '');
-    return MERCHANT_FALLBACKS[mKey] || `https://www.anrdoezrs.net/links/${CJ_CID}/type/dlg/sid/${CJ_SUBID}/https://supernovastore.humancentric.online`;
+    if (mKey && MERCHANT_FALLBACKS[mKey]) {
+      return MERCHANT_FALLBACKS[mKey];
+    }
+    const slug = mKey || 'store';
+    const cleanId = id || 'deal';
+    return `https://www.anrdoezrs.net/links/${CJ_CID}/type/dlg/sid/${CJ_SUBID}/https://${slug}.com/product/${cleanId}`;
   }
 
   let url = rawUrl.trim();
 
-  // Deshacer concatenación indebida con el dominio propio
+  // Deshacer rutas internas del frontend y convertirlas al comercio externo
+  if (url.includes('supernovastore.humancentric.online/cj/') || url.includes('/cj/')) {
+    if (mKey && MERCHANT_FALLBACKS[mKey]) {
+      return MERCHANT_FALLBACKS[mKey];
+    }
+    const slug = mKey || 'store';
+    const cleanId = id || 'deal';
+    return `https://www.anrdoezrs.net/links/${CJ_CID}/type/dlg/sid/${CJ_SUBID}/https://${slug}.com/product/${cleanId}`;
+  }
+
   if (url.includes('supernovastore.humancentric.online/affiliate/')) {
-    const parts = url.split('/affiliate/');
-    const subRoute = parts[1] || '';
-    url = `https://www.anrdoezrs.net/links/${CJ_CID}/type/dlg/sid/${CJ_SUBID}/https://supernovastore.humancentric.online/${subRoute}`;
+    if (mKey && MERCHANT_FALLBACKS[mKey]) {
+      return MERCHANT_FALLBACKS[mKey];
+    }
+    const slug = mKey || 'store';
+    return `https://www.anrdoezrs.net/links/${CJ_CID}/type/dlg/sid/${CJ_SUBID}/https://${slug}.com/`;
   }
 
   // Asegurar esquema HTTPS
@@ -97,7 +116,7 @@ function normalizeCJUrl(rawUrl, merchant = '') {
  */
 function isDeadProduct(url, title, merchant) {
   if (!url || !title) return true;
-  if (isBlacklisted(merchant, url)) return true;
+  if (isBlacklisted(merchant, url, title)) return true;
 
   const lowerUrl = url.toLowerCase();
   const lowerTitle = title.toLowerCase();
@@ -192,17 +211,6 @@ function initDatabase() {
     );
   `);
 
-  // Depuración directa de la base de datos para Booking y AliExpress
-  console.log('🧹 Depurando registros antiguos de Booking.com y AliExpress de SQLite...');
-  const delResult = db.prepare(`
-    DELETE FROM products 
-    WHERE LOWER(merchant) LIKE '%booking%' 
-       OR LOWER(merchant) LIKE '%aliexpress%'
-       OR LOWER(affiliate_url) LIKE '%booking.com%'
-       OR LOWER(affiliate_url) LIKE '%aliexpress.com%'
-  `).run();
-  console.log(`   🗑️ ${delResult.changes} registros eliminados de la base de datos.`);
-
   return db;
 }
 
@@ -211,7 +219,7 @@ function initDatabase() {
  */
 async function runMassiveCatalogPipeline() {
   console.log('===============================================================');
-  console.log('🚀 [SUPERNOVA PIPELINE] INGESTA MASIVA & EXCLUSIÓN DE ANUNCIANTES');
+  console.log('🚀 [SUPERNOVA PIPELINE] INGESTA MASIVA & SANITIZACIÓN EXTERNA DE URLS');
   console.log('⛔ LISTA NEGRA ACTIVA: Booking.com, AliExpress');
   console.log(`📦 Fuente principal:   ${CSV_FEED_PATH}`);
   console.log(`💾 Base de datos:      ${DB_PATH}`);
@@ -241,19 +249,23 @@ async function runMassiveCatalogPipeline() {
     console.log(`⭐ Ingestando productos de master catalog (excluyendo lista negra)...`);
     const masterItems = JSON.parse(fs.readFileSync(MASTER_CATALOG_PATH, 'utf-8'));
     const cleanMaster = masterItems
-      .filter((item) => !isBlacklisted(item.merchant, item.affiliateUrl || item.product_url))
-      .map((item, idx) => ({
-        id: item.id || `master-cj-${idx + 1}`,
-        title: item.title || item.post_title,
-        description: item.description || item.post_content || '',
-        price: parseFloat(item.price || item.regular_price || 0) || 0,
-        salePrice: item.salePrice ? parseFloat(item.salePrice) : (item.sale_price ? parseFloat(item.sale_price) : null),
-        merchant: item.merchant || 'Supernova Partner',
-        category: item.category || 'tech',
-        affiliateUrl: normalizeCJUrl(item.affiliateUrl || item.product_url, item.merchant),
-        imageUrl: item.imageUrl || item.image_url || FALLBACK_IMAGE,
-        tags: item.tags || `cj,${item.category || 'lifestyle'}`,
-      }))
+      .filter((item) => !isBlacklisted(item.merchant, item.affiliateUrl || item.product_url, item.title || item.post_title))
+      .map((item, idx) => {
+        const id = item.id || `master-cj-${idx + 1}`;
+        const merchant = item.merchant || 'Supernova Partner';
+        return {
+          id,
+          title: item.title || item.post_title,
+          description: item.description || item.post_content || '',
+          price: parseFloat(item.price || item.regular_price || 0) || 0,
+          salePrice: item.salePrice ? parseFloat(item.salePrice) : (item.sale_price ? parseFloat(item.sale_price) : null),
+          merchant,
+          category: item.category || 'tech',
+          affiliateUrl: normalizeCJUrl(item.affiliateUrl || item.product_url, merchant, id),
+          imageUrl: item.imageUrl || item.image_url || FALLBACK_IMAGE,
+          tags: item.tags || `cj,${item.category || 'lifestyle'}`,
+        };
+      })
       .filter((p) => !isDeadProduct(p.affiliateUrl, p.title, p.merchant));
 
     insertChunk(cleanMaster);
@@ -266,7 +278,7 @@ async function runMassiveCatalogPipeline() {
     process.exit(1);
   }
 
-  console.log(`\n⏳ Procesando feed de catálogo aplicando lista negra por lotes de ${BATCH_SIZE.toLocaleString()} filas...`);
+  console.log(`\n⏳ Procesando feed de catálogo por lotes de ${BATCH_SIZE.toLocaleString()} filas...`);
 
   const fileStream = fs.createReadStream(CSV_FEED_PATH, { encoding: 'utf8' });
   const rl = readline.createInterface({ input: fileStream, crlfDelay: Infinity });
@@ -313,7 +325,7 @@ async function runMassiveCatalogPipeline() {
     const rawAffUrl = (colMap.affiliateUrl !== -1 && cols[colMap.affiliateUrl]) ? cols[colMap.affiliateUrl] : '';
 
     // Filtrar de inmediato si es de lista negra
-    if (isBlacklisted(merchant, rawAffUrl)) {
+    if (isBlacklisted(merchant, rawAffUrl, title)) {
       totalBlacklisted++;
       continue;
     }
@@ -331,7 +343,7 @@ async function runMassiveCatalogPipeline() {
       }
     }
 
-    const affiliateUrl = normalizeCJUrl(rawAffUrl, merchant);
+    const affiliateUrl = normalizeCJUrl(rawAffUrl, merchant, id);
     const imageUrl = (colMap.imageUrl !== -1 && cols[colMap.imageUrl]) ? cols[colMap.imageUrl] : FALLBACK_IMAGE;
     const tags = (colMap.tags !== -1 && cols[colMap.tags]) ? cols[colMap.tags] : `${category},${merchant.toLowerCase()}`;
 
@@ -378,7 +390,7 @@ async function runMassiveCatalogPipeline() {
   db.exec('VACUUM;');
   db.pragma('wal_checkpoint(TRUNCATE)');
 
-  // 3. Exportar muestra representativa de alta calidad libre de Booking y AliExpress
+  // 3. Exportar muestra representativa de alta calidad
   console.log(`📁 Exportando catálogo limpio a data.json y public/data/products.json...`);
   const curatedSample = db.prepare(`
     SELECT id, title, description, price, sale_price as salePrice, merchant, category, affiliate_url as affiliateUrl, image_url as imageUrl, tags
@@ -428,7 +440,7 @@ async function runMassiveCatalogPipeline() {
   db.close();
 
   console.log('\n===============================================================');
-  console.log('🏁 INGESTA Y EXCLUSIÓN COMPLETADA EXITOSAMENTE:');
+  console.log('🏁 INGESTA Y NORMALIZACIÓN COMPLETADA EXITOSAMENTE:');
   console.log(`- 📦 Total registros procesados:    ${totalProcessed.toLocaleString()}`);
   console.log(`- ✅ Total productos activos en DB:  ${totalInDb.toLocaleString()}`);
   console.log(`- 🏢 Marcas / Anunciantes activos:  ${totalMerchants}`);

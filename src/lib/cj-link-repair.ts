@@ -4,6 +4,9 @@
  * 1. Redes y dominios de seguimiento oficial de CJ
  */
 
+export const CJ_CID = '7999396';
+export const CJ_SUBID = 'supernova';
+
 export const CJ_TRACKING_HOSTS = [
   'anrdoezrs.net',
   'dpbolvw.net',
@@ -21,9 +24,6 @@ export const CJ_DOMAINS = CJ_TRACKING_HOSTS;
  * Fallbacks verificados por anunciante ante deep-links rotos o páginas 404
  */
 export const MERCHANT_CJ_FALLBACKS: Record<string, string> = {
-  'booking.com': 'https://www.anrdoezrs.net/links/7999396/type/dlg/sid/supernova/https://www.booking.com/',
-  'booking': 'https://www.anrdoezrs.net/links/7999396/type/dlg/sid/supernova/https://www.booking.com/',
-  'aliexpress': 'https://www.anrdoezrs.net/links/7999396/type/dlg/sid/supernova/https://www.aliexpress.com/',
   'zinio': 'https://www.anrdoezrs.net/links/7999396/type/dlg/sid/supernova/https://www.zinio.com/',
   'wondershare': 'https://www.anrdoezrs.net/links/7999396/type/dlg/sid/supernova/https://www.wondershare.com/',
   'ashampoo': 'https://www.anrdoezrs.net/links/7999396/type/dlg/sid/supernova/https://www.ashampoo.com/',
@@ -61,33 +61,43 @@ export function isDeadDeepLink(url: string): boolean {
     return true;
   }
 
-  // Booking: hoteles o búsquedas caducadas sin parámetros válidos
-  if (lower.includes('booking.com') && (lower.endsWith('/hotel/') || lower.includes('/error.html'))) {
-    return true;
-  }
-
   return false;
 }
 
 /**
  * 2. Función de saneamiento de URLs de afiliado con recuperación Anti-404
+ * Garantiza que siempre devuelva una URL externa directa válida para compras.
  */
-export function sanitizeAffiliateUrl(rawUrl?: string | null, merchant?: string): string {
+export function sanitizeAffiliateUrl(rawUrl?: string | null, merchant?: string, productId?: string): string {
+  const mKey = (merchant || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+
   if (!rawUrl || typeof rawUrl !== 'string') {
-    if (merchant && MERCHANT_CJ_FALLBACKS[merchant.toLowerCase()]) {
-      return MERCHANT_CJ_FALLBACKS[merchant.toLowerCase()];
+    if (mKey && MERCHANT_CJ_FALLBACKS[mKey]) {
+      return MERCHANT_CJ_FALLBACKS[mKey];
     }
-    return '';
+    const slug = mKey || 'store';
+    return `https://www.anrdoezrs.net/links/${CJ_CID}/type/dlg/sid/${CJ_SUBID}/https://${slug}.com/`;
   }
 
   let url = rawUrl.trim();
 
-  // Deshacer concatenación accidental con el dominio de la tienda
-  if (url.includes('supernovastore.humancentric.online')) {
-    const match = url.match(
-      /https?:\/\/[^\s"'<>]*(?:anrdoezrs|dpbolvw|tkqlhce|jdoqocy|kqzyfj|qksrv|emjcd)\.(?:net|com)[^\s"'<>]*/i
-    );
-    if (match) url = match[0];
+  // Si la URL contiene un destino interno de supernovastore (ej. https://supernovastore.humancentric.online/cj/techhaven/prod-10),
+  // desentrañar para obtener la URL real del comercio externo y envolverla en CJ Gateway
+  if (url.includes('supernovastore.humancentric.online/cj/') || url.includes('/cj/')) {
+    if (mKey && MERCHANT_CJ_FALLBACKS[mKey]) {
+      return MERCHANT_CJ_FALLBACKS[mKey];
+    }
+    const slug = mKey || 'store';
+    const cleanId = productId || 'featured';
+    return `https://www.anrdoezrs.net/links/${CJ_CID}/type/dlg/sid/${CJ_SUBID}/https://${slug}.com/product/${cleanId}`;
+  }
+
+  if (url.includes('supernovastore.humancentric.online/affiliate/')) {
+    if (mKey && MERCHANT_CJ_FALLBACKS[mKey]) {
+      return MERCHANT_CJ_FALLBACKS[mKey];
+    }
+    const slug = mKey || 'store';
+    return `https://www.anrdoezrs.net/links/${CJ_CID}/type/dlg/sid/${CJ_SUBID}/https://${slug}.com/`;
   }
 
   // Asegurar HTTPS
@@ -113,13 +123,12 @@ export function sanitizeAffiliateUrl(rawUrl?: string | null, merchant?: string):
       const urlObj = new URL(url);
       const targetParam = urlObj.searchParams.get('url');
       if (targetParam && targetParam.includes('http')) {
-        // Asegurar que la URL interna esté bien formateada y sin dobles barras rotas
         const cleanTarget = decodeURIComponent(targetParam);
         
         // Si el destino es un deep-link roto conocido, redirigir al fallback del anunciante
         if (isDeadDeepLink(cleanTarget)) {
-          if (merchant && MERCHANT_CJ_FALLBACKS[merchant.toLowerCase()]) {
-            return MERCHANT_CJ_FALLBACKS[merchant.toLowerCase()];
+          if (mKey && MERCHANT_CJ_FALLBACKS[mKey]) {
+            return MERCHANT_CJ_FALLBACKS[mKey];
           }
         }
 
@@ -127,20 +136,29 @@ export function sanitizeAffiliateUrl(rawUrl?: string | null, merchant?: string):
         url = urlObj.toString();
       }
     }
-  } catch (e) {
+  } catch {
     // En caso de fallo de parseo estándar, conservar URL limpia
   }
 
   // Si la URL principal es un slug muerto, retornar el fallback del anunciante
   if (isDeadDeepLink(url)) {
-    if (merchant && MERCHANT_CJ_FALLBACKS[merchant.toLowerCase()]) {
-      return MERCHANT_CJ_FALLBACKS[merchant.toLowerCase()];
+    if (mKey && MERCHANT_CJ_FALLBACKS[mKey]) {
+      return MERCHANT_CJ_FALLBACKS[mKey];
     }
   }
 
-  // Si es ruta relativa limpia interna, retornar tal cual
-  if (url.startsWith('/') && !url.startsWith('//')) {
-    return url;
+  // Si la URL no tiene pasarela CJ y es dominio externo, envolverla
+  if (
+    url.startsWith('http') &&
+    !url.includes('anrdoezrs.net') &&
+    !url.includes('dpbolvw.net') &&
+    !url.includes('tkqlhce.com') &&
+    !url.includes('jdoqocy.com') &&
+    !url.includes('kqzyfj.com') &&
+    !url.includes('qksrv.net') &&
+    !url.includes('emjcd.com')
+  ) {
+    url = `https://www.anrdoezrs.net/links/${CJ_CID}/type/dlg/sid/${CJ_SUBID}/${url}`;
   }
 
   return url;

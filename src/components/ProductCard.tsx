@@ -10,18 +10,10 @@ export function ProductCard({ product }: { product: Product }) {
   const rawAffiliateUrl =
     (product as unknown as { affiliateUrl?: string }).affiliateUrl ||
     product.affiliate?.url ||
-    `/go/${product.id}`;
+    (product as unknown as { product_url?: string }).product_url ||
+    `https://www.anrdoezrs.net/links/7999396/type/dlg/sid/supernova/https://${(product.merchant || 'store').toLowerCase().replace(/[^a-z0-9]/g, '')}.com/product/${product.id}`;
 
-  let cjUrl = sanitizeAffiliateUrl(rawAffiliateUrl, product.merchant);
-  if (!cjUrl || cjUrl === '/') {
-    cjUrl = rawAffiliateUrl.startsWith('http')
-      ? rawAffiliateUrl
-      : `https://${rawAffiliateUrl}`;
-  } else if (cjUrl.startsWith('//')) {
-    cjUrl = `https:${cjUrl}`;
-  } else if (!cjUrl.startsWith('http://') && !cjUrl.startsWith('https://') && !cjUrl.startsWith('/')) {
-    cjUrl = `https://${cjUrl}`;
-  }
+  const cjUrl = sanitizeAffiliateUrl(rawAffiliateUrl, product.merchant, product.id);
 
   const [imgSrc, setImgSrc] = useState<string>(product.imageUrl || FALLBACK_IMAGE);
 
@@ -29,7 +21,6 @@ export function ProductCard({ product }: { product: Product }) {
   const displayPrice = hasDiscount ? product.salePrice! : product.price;
 
   const handleCardClick = (e: React.MouseEvent) => {
-    // Evitar cualquier captura interna de Next.js
     e.stopPropagation();
     window.open(cjUrl, '_blank', 'noopener,noreferrer,sponsored');
   };
@@ -40,7 +31,7 @@ export function ProductCard({ product }: { product: Product }) {
       className="product-card cursor-pointer group bg-white border border-[#ECECE8] rounded-xl md:rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between hover:-translate-y-1"
     >
       <div className="p-4 sm:p-5">
-        {/* Imagen del producto con enlace seguro directo */}
+        {/* Imagen del producto con enlace externo directo */}
         <a
           href={cjUrl}
           target="_blank"
@@ -65,7 +56,7 @@ export function ProductCard({ product }: { product: Product }) {
           </span>
         </a>
 
-        {/* Metadatos y Título con enlace seguro directo */}
+        {/* Metadatos y Título con enlace externo directo */}
         <span className="text-xs font-bold text-[#D96B27] uppercase tracking-wider block font-heading">
           {product.merchant}
         </span>
@@ -86,7 +77,7 @@ export function ProductCard({ product }: { product: Product }) {
         )}
       </div>
 
-      {/* Precio y Botón CTA con enlace seguro directo */}
+      {/* Precio y Botón CTA con enlace externo directo */}
       <div className="p-4 sm:p-5 pt-0">
         <div className="pt-3 border-t border-[#ECECE8] flex items-center justify-between gap-3 mb-3">
           <div className="flex items-baseline gap-2">
@@ -108,7 +99,7 @@ export function ProductCard({ product }: { product: Product }) {
           onClick={(e) => e.stopPropagation()}
           className="w-full inline-flex items-center justify-center py-2.5 px-4 bg-[#0B2545] hover:bg-[#D96B27] text-white font-heading font-bold text-xs uppercase tracking-wider rounded-lg md:rounded-xl transition-all duration-200 shadow-sm hover:shadow-md cursor-pointer"
         >
-          Ver Oferta →
+          Ver Oferta en {product.merchant || 'Comercio'} →
         </a>
       </div>
     </div>

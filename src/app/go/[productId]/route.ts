@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getProductById, getPublicBaseUrl } from '@/lib/products';
-import { sanitizeCJLink } from '@/lib/cj-link-repair';
+import { sanitizeAffiliateUrl } from '@/lib/cj-link-repair';
+import { getDb, rowToProduct, DbProductRow } from '@/lib/db';
 
 export async function GET(
   request: NextRequest,
@@ -10,77 +11,36 @@ export async function GET(
 
   try {
     const { productId } = await params;
-    const product = getProductById(productId);
+    let product = getProductById(productId);
 
     if (!product) {
-      // Graceful fallback to official store home page
-      const homeUrl = new URL('/', publicBaseUrl);
-      return NextResponse.redirect(homeUrl.toString(), 302);
-    }
-
-    const rawUrl = sanitizeCJLink(product.affiliate.url || '', product.merchant);
-
-    // Check if URL is an external affiliate destination (real CJ link or merchant checkout)
-    const isExternalAffiliate =
-      rawUrl.startsWith('http://') || rawUrl.startsWith('https://')
-        ? !rawUrl.includes('supernovastore.humancentric.online/affiliate') &&
-          !rawUrl.includes('example.com') &&
-          !rawUrl.includes('google.com') &&
-          !rawUrl.includes('0.0.0.0') &&
-          !rawUrl.includes('localhost')
-        : false;
-
-    let targetUrl = rawUrl;
-    if (
-      targetUrl.startsWith('http') &&
-      !targetUrl.includes('anrdoezrs.net') &&
-      !targetUrl.includes('tkqlhce.com') &&
-      !targetUrl.includes('dpbolvw.net') &&
-      !targetUrl.includes('jdoqocy.com') &&
-      !targetUrl.includes('kqzyfj.com') &&
-      !targetUrl.includes('qksrv.net') &&
-      !targetUrl.includes('emjcd.com') &&
-      !targetUrl.includes('supernovastore.humancentric.online')
-    ) {
-      targetUrl = `https://www.anrdoezrs.net/links/7999396/type/dlg/sid/supernova/${targetUrl}`;
-    }
-
-    targetUrl = sanitizeCJLink(targetUrl, product.merchant);
-
-    if (isExternalAffiliate) {
       try {
-        const affiliateUrl = new URL(targetUrl);
-
-        // Append UTM parameters for tracking (always CJ)
-        affiliateUrl.searchParams.set('utm_source', 'supernova');
-        affiliateUrl.searchParams.set('utm_medium', 'affiliate');
-        affiliateUrl.searchParams.set('utm_campaign', 'cj');
-
-        // Forward any incoming query parameters
-        const incomingParams = request.nextUrl.searchParams;
-        incomingParams.forEach((value, key) => {
-          if (!key.startsWith('utm_')) {
-            affiliateUrl.searchParams.set(key, value);
-          }
-        });
-
-        console.log(
-          `[AFFILIATE CLICK] Product: ${product.id} | Merchant: ${product.merchant} -> ${affiliateUrl.hostname}`
-        );
-
-        return NextResponse.redirect(affiliateUrl.toString(), 302);
-      } catch (urlErr) {
-        console.warn('[AFFILIATE_CLICK_URL_PARSE_WARN]', urlErr);
+        const db = getDb();
+        const normalizedId = productId.startsWith('prod-') ? productId : `prod-${productId}`;
+        const row = db
+          .prepare(`SELECT * FROM products WHERE (id = ? OR id = ?) AND is_active = 1 LIMIT 1`)
+          .get(productId, normalizedId) as DbProductRow | undefined;
+        if (row) product = rowToProduct(row);
+      } catch {
+        // Ignorar
       }
     }
 
-    // If internal/missing, redirect gracefully to official storefront with product search
-    const fallbackStore = new URL('/', publicBaseUrl);
-    fallbackStore.searchParams.set('search', product.title);
-    return NextResponse.redirect(fallbackStore.toString(), 302);
+    if (!product) {
+      const fallbackUrl = new URL('/', publicBaseUrl);
+      fallbackUrl.searchParams.set('search', productId.replace(/^prod-0*/, ''));
+      return NextResponse.redirect(fallbackUrl.toString(), 307);
+    }
+
+    const rawUrl =
+      product.affiliate?.url ||
+      (product as unknown as { product_url?: string }).product_url;
+
+    const targetUrl = sanitizeAffiliateUrl(rawUrl, product.merchant, product.id);
+
+    return NextResponse.redirect(targetUrl, 307);
   } catch (fatalErr) {
     console.error('[GO_ROUTE_FATAL]', fatalErr);
-    // Bulletproof fallback to homepage to prevent 502 Bad Gateway
-    return NextResponse.redirect(publicBaseUrl, 302);
+    return NextResponse.redirect(publicBaseUrl, 307);
   }
 }
