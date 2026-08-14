@@ -10,12 +10,10 @@ export async function GET(
   const slugPath = slug ? slug.join('/') : '';
   const lastSegment = slug && slug.length > 0 ? slug[slug.length - 1] : '';
 
-  console.log(`[AFFILIATE_ROUTE] Incoming affiliate request for slug: /${slugPath}`);
-
-  // 1. Try finding product by last segment ID (e.g., 'prod-142999', 'prod-000001', 'cj-12345')
+  // 1. Find product by last segment ID
   let product = lastSegment ? getProductById(lastSegment) : undefined;
 
-  // 2. If not found, search in DB by slug pattern in affiliate_url
+  // 2. If not found by ID, search by slug in affiliate_url
   if (!product && slugPath) {
     try {
       const db = getDb();
@@ -36,7 +34,7 @@ export async function GET(
     }
   }
 
-  // 3. If product not found, fallback redirect to homepage search or store
+  // 3. Fallback: if product is missing, redirect to store homepage
   if (!product) {
     console.warn(`[AFFILIATE_ROUTE] Product not found for slug: /${slugPath}. Redirecting to store.`);
     const fallbackUrl = new URL('/', request.nextUrl.origin);
@@ -46,45 +44,44 @@ export async function GET(
     return NextResponse.redirect(fallbackUrl.toString(), 302);
   }
 
-  // 4. Resolve destination URL
-  let targetUrlString = product.affiliate.url;
+  const rawUrl = product.affiliate.url || '';
 
-  // Check if URL is an internal/simulated placeholder
-  const isInternalUrl =
-    targetUrlString.includes('supernovastore.humancentric.online/affiliate') ||
-    targetUrlString.includes('example.com') ||
-    targetUrlString.startsWith('/affiliate');
+  // Check if URL is an external CJ affiliate link or valid external destination
+  const isExternalAffiliate =
+    rawUrl.startsWith('http://') || rawUrl.startsWith('https://')
+      ? !rawUrl.includes('supernovastore.humancentric.online/affiliate') &&
+        !rawUrl.includes('example.com') &&
+        !rawUrl.includes('google.com')
+      : false;
 
-  if (isInternalUrl) {
-    // If it's a simulated catalog product from the feed, redirect to a merchant search
-    targetUrlString = `https://www.google.com/search?q=${encodeURIComponent(
-      `${product.title} ${product.merchant}`.trim()
-    )}`;
+  if (isExternalAffiliate) {
+    try {
+      const destinationUrl = new URL(rawUrl);
+
+      // Standard CJ affiliate tracking UTM parameters (always CJ, never Impact)
+      destinationUrl.searchParams.set('utm_source', 'supernova');
+      destinationUrl.searchParams.set('utm_medium', 'affiliate');
+      destinationUrl.searchParams.set('utm_campaign', 'cj');
+
+      // Forward any incoming query parameters
+      const incomingParams = request.nextUrl.searchParams;
+      incomingParams.forEach((value, key) => {
+        if (!key.startsWith('utm_')) {
+          destinationUrl.searchParams.set(key, value);
+        }
+      });
+
+      console.log(
+        `[AFFILIATE_ROUTE] Redirecting to CJ merchant: ${product.id} -> ${destinationUrl.hostname}`
+      );
+      return NextResponse.redirect(destinationUrl.toString(), 302);
+    } catch (e) {
+      console.error('[AFFILIATE_ROUTE] Error parsing external URL:', e);
+    }
   }
 
-  try {
-    const destinationUrl = new URL(targetUrlString);
-
-    // Append standard affiliate tracking UTM parameters
-    destinationUrl.searchParams.set('utm_source', 'supernova');
-    destinationUrl.searchParams.set('utm_medium', 'affiliate');
-    destinationUrl.searchParams.set('utm_campaign', product.affiliate.network || 'cj');
-
-    // Forward any incoming query parameters
-    const incomingParams = request.nextUrl.searchParams;
-    incomingParams.forEach((value, key) => {
-      if (!key.startsWith('utm_')) {
-        destinationUrl.searchParams.set(key, value);
-      }
-    });
-
-    console.log(
-      `[AFFILIATE_ROUTE] Redirecting product ${product.id} (${product.merchant}) -> ${destinationUrl.hostname}`
-    );
-
-    return NextResponse.redirect(destinationUrl.toString(), 302);
-  } catch {
-    // Fallback if URL parsing fails
-    return NextResponse.redirect(targetUrlString, 302);
-  }
+  // For products without external links, keep user inside Supernova Store (no Google search)
+  const storeUrl = new URL('/', request.nextUrl.origin);
+  storeUrl.searchParams.set('search', product.title);
+  return NextResponse.redirect(storeUrl.toString(), 302);
 }
