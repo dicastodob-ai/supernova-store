@@ -1,12 +1,13 @@
 /**
- * Supernova Store — Massive 140K+ Catalog Ingestion, Anti-404 Validation & Batch Pipeline
+ * Supernova Store — Massive Catalog Ingestion, Anti-404 Validation & Advertiser Exclusion Pipeline
  *
  * Lead Data Engineer Pipeline:
- * 1. Stream-reads feed-143k.csv & master feeds in chunked batches (2,500 - 5,000 rows).
- * 2. Applies strict anti-404 sanitation, URL normalization, and tracking gateway validation.
- * 3. Progressively commits clean batches to SQLite (data/supernova.db) with WAL mode.
+ * 1. Stream-reads feeds and applies strict merchant exclusion blacklist:
+ *    - EXCLUDED: Booking.com and AliExpress (high-volatility / 404 expiration rate).
+ * 2. Normalizes all remaining approved products to official CJ deep-link tracking links.
+ * 3. Commits chunked batches to SQLite (data/supernova.db), purging any blacklisted or dead items.
  * 4. Rebuilds FTS5 full-text search index and optimizes database footprint (VACUUM / checkpoint).
- * 5. Exports curated operational dataset to data.json, public/data.json, and public/data/products.json.
+ * 5. Exports clean operational dataset to data.json, public/data.json, and public/data/products.json.
  */
 
 const fs = require('fs');
@@ -27,16 +28,28 @@ const CJ_SUBID = 'supernova';
 const BATCH_SIZE = 5000;
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80';
 
-// Fallbacks de anunciantes oficiales verificados
+// LISTA NEGRA ESTRICTA DE ANUNCIANTES VOLÁTILES
+const BLACKLISTED_MERCHANTS = ['booking', 'aliexpress'];
+
+// Fallbacks de anunciantes oficiales estables
 const MERCHANT_FALLBACKS = {
-  'booking.com': 'https://www.anrdoezrs.net/links/7999396/type/dlg/sid/supernova/https://www.booking.com/',
-  'aliexpress': 'https://www.anrdoezrs.net/links/7999396/type/dlg/sid/supernova/https://www.aliexpress.com/',
   'zinio': 'https://www.anrdoezrs.net/links/7999396/type/dlg/sid/supernova/https://www.zinio.com/',
   'wondershare': 'https://www.anrdoezrs.net/links/7999396/type/dlg/sid/supernova/https://www.wondershare.com/',
   'ashampoo': 'https://www.anrdoezrs.net/links/7999396/type/dlg/sid/supernova/https://www.ashampoo.com/',
   'whokeys': 'https://www.anrdoezrs.net/links/7999396/type/dlg/sid/supernova/https://www.whokeys.com/',
   'abracadabranyc': 'https://www.anrdoezrs.net/links/7999396/type/dlg/sid/supernova/https://abracadabranyc.com/',
 };
+
+/**
+ * Comprueba si un registro pertenece a la lista negra
+ */
+function isBlacklisted(merchant = '', url = '') {
+  const mLower = String(merchant).toLowerCase();
+  const uLower = String(url).toLowerCase();
+  return BLACKLISTED_MERCHANTS.some(
+    (bad) => mLower.includes(bad) || uLower.includes(bad)
+  );
+}
 
 /**
  * Normaliza y construye la URL de tracking de CJ garantizada
@@ -51,7 +64,6 @@ function normalizeCJUrl(rawUrl, merchant = '') {
 
   // Deshacer concatenación indebida con el dominio propio
   if (url.includes('supernovastore.humancentric.online/affiliate/')) {
-    // Si era URL interna de routing sintético, convertir a pasarela oficial
     const parts = url.split('/affiliate/');
     const subRoute = parts[1] || '';
     url = `https://www.anrdoezrs.net/links/${CJ_CID}/type/dlg/sid/${CJ_SUBID}/https://supernovastore.humancentric.online/${subRoute}`;
@@ -81,10 +93,12 @@ function normalizeCJUrl(rawUrl, merchant = '') {
 }
 
 /**
- * Validador estricto anti-404 en memoria / feed
+ * Validador estricto anti-404 y exclusiones
  */
 function isDeadProduct(url, title, merchant) {
   if (!url || !title) return true;
+  if (isBlacklisted(merchant, url)) return true;
+
   const lowerUrl = url.toLowerCase();
   const lowerTitle = title.toLowerCase();
 
@@ -106,7 +120,7 @@ function isDeadProduct(url, title, merchant) {
 }
 
 /**
- * Parser de línea CSV compatible con campos entrecomillados y saltos de línea
+ * Parser de línea CSV compatible con campos entrecomillados
  */
 function parseCsvLine(line) {
   const values = [];
@@ -134,13 +148,13 @@ function parseCsvLine(line) {
 }
 
 /**
- * Inicializa y optimiza la base de datos SQLite
+ * Inicializa la base de datos SQLite y purga anunciantes en lista negra
  */
 function initDatabase() {
   const db = new Database(DB_PATH);
   db.pragma('journal_mode = WAL');
   db.pragma('synchronous = OFF');
-  db.pragma('cache_size = -128000'); // 128MB cache para alta velocidad de inserción
+  db.pragma('cache_size = -128000');
   db.pragma('temp_store = MEMORY');
 
   db.exec(`
@@ -178,17 +192,29 @@ function initDatabase() {
     );
   `);
 
+  // Depuración directa de la base de datos para Booking y AliExpress
+  console.log('🧹 Depurando registros antiguos de Booking.com y AliExpress de SQLite...');
+  const delResult = db.prepare(`
+    DELETE FROM products 
+    WHERE LOWER(merchant) LIKE '%booking%' 
+       OR LOWER(merchant) LIKE '%aliexpress%'
+       OR LOWER(affiliate_url) LIKE '%booking.com%'
+       OR LOWER(affiliate_url) LIKE '%aliexpress.com%'
+  `).run();
+  console.log(`   🗑️ ${delResult.changes} registros eliminados de la base de datos.`);
+
   return db;
 }
 
 /**
- * Ejecución principal del pipeline masivo 140k+
+ * Ejecución principal del pipeline masivo con lista negra
  */
 async function runMassiveCatalogPipeline() {
   console.log('===============================================================');
-  console.log('🚀 [SUPERNOVA DATA PIPELINE] ESCALADO & INGESTA MASIVA 140K+');
-  console.log(`📦 Archivo fuente principal: ${CSV_FEED_PATH}`);
-  console.log(`💾 Base de datos SQLite:     ${DB_PATH}`);
+  console.log('🚀 [SUPERNOVA PIPELINE] INGESTA MASIVA & EXCLUSIÓN DE ANUNCIANTES');
+  console.log('⛔ LISTA NEGRA ACTIVA: Booking.com, AliExpress');
+  console.log(`📦 Fuente principal:   ${CSV_FEED_PATH}`);
+  console.log(`💾 Base de datos:      ${DB_PATH}`);
   console.log('===============================================================\n');
 
   const startTime = Date.now();
@@ -210,25 +236,28 @@ async function runMassiveCatalogPipeline() {
     }
   });
 
-  // 1. Primero, ingerir y asegurar los productos verificados del master_catalog.json
+  // 1. Ingerir y filtrar productos verificados del master_catalog.json
   if (fs.existsSync(MASTER_CATALOG_PATH)) {
-    console.log(`⭐ Ingestando productos verificados de catálogo maestro...`);
+    console.log(`⭐ Ingestando productos de master catalog (excluyendo lista negra)...`);
     const masterItems = JSON.parse(fs.readFileSync(MASTER_CATALOG_PATH, 'utf-8'));
-    const masterBatch = masterItems.map((item, idx) => ({
-      id: item.id || `master-cj-${idx + 1}`,
-      title: item.title || item.post_title,
-      description: item.description || item.post_content || '',
-      price: parseFloat(item.price || item.regular_price || 0) || 0,
-      salePrice: item.salePrice ? parseFloat(item.salePrice) : (item.sale_price ? parseFloat(item.sale_price) : null),
-      merchant: item.merchant || 'Supernova Partner',
-      category: item.category || 'tech',
-      affiliateUrl: normalizeCJUrl(item.affiliateUrl || item.product_url, item.merchant),
-      imageUrl: item.imageUrl || item.image_url || FALLBACK_IMAGE,
-      tags: item.tags || `cj,${item.category || 'lifestyle'}`,
-    })).filter((p) => !isDeadProduct(p.affiliateUrl, p.title, p.merchant));
+    const cleanMaster = masterItems
+      .filter((item) => !isBlacklisted(item.merchant, item.affiliateUrl || item.product_url))
+      .map((item, idx) => ({
+        id: item.id || `master-cj-${idx + 1}`,
+        title: item.title || item.post_title,
+        description: item.description || item.post_content || '',
+        price: parseFloat(item.price || item.regular_price || 0) || 0,
+        salePrice: item.salePrice ? parseFloat(item.salePrice) : (item.sale_price ? parseFloat(item.sale_price) : null),
+        merchant: item.merchant || 'Supernova Partner',
+        category: item.category || 'tech',
+        affiliateUrl: normalizeCJUrl(item.affiliateUrl || item.product_url, item.merchant),
+        imageUrl: item.imageUrl || item.image_url || FALLBACK_IMAGE,
+        tags: item.tags || `cj,${item.category || 'lifestyle'}`,
+      }))
+      .filter((p) => !isDeadProduct(p.affiliateUrl, p.title, p.merchant));
 
-    insertChunk(masterBatch);
-    console.log(`   ✅ ${masterBatch.length} productos verificados de master catalog guardados.`);
+    insertChunk(cleanMaster);
+    console.log(`   ✅ ${cleanMaster.length} productos verificados estables guardados.`);
   }
 
   // 2. Procesar el feed CSV de 143k productos por bloques continuos
@@ -237,7 +266,7 @@ async function runMassiveCatalogPipeline() {
     process.exit(1);
   }
 
-  console.log(`\n⏳ Procesando feed de más de 140.000 productos por lotes de ${BATCH_SIZE.toLocaleString()} filas...`);
+  console.log(`\n⏳ Procesando feed de catálogo aplicando lista negra por lotes de ${BATCH_SIZE.toLocaleString()} filas...`);
 
   const fileStream = fs.createReadStream(CSV_FEED_PATH, { encoding: 'utf8' });
   const rl = readline.createInterface({ input: fileStream, crlfDelay: Infinity });
@@ -245,6 +274,7 @@ async function runMassiveCatalogPipeline() {
   let lineCount = 0;
   let totalProcessed = 0;
   let totalSaved = 0;
+  let totalBlacklisted = 0;
   let totalPurged = 0;
   let batch = [];
   let colMap = null;
@@ -280,7 +310,14 @@ async function runMassiveCatalogPipeline() {
     const description = (colMap.description !== -1 && cols[colMap.description]) ? cols[colMap.description] : '';
     const merchant = (colMap.merchant !== -1 && cols[colMap.merchant]) ? cols[colMap.merchant] : 'Supernova';
     const category = (colMap.category !== -1 && cols[colMap.category]) ? cols[colMap.category].toLowerCase().trim() : 'lifestyle';
-    
+    const rawAffUrl = (colMap.affiliateUrl !== -1 && cols[colMap.affiliateUrl]) ? cols[colMap.affiliateUrl] : '';
+
+    // Filtrar de inmediato si es de lista negra
+    if (isBlacklisted(merchant, rawAffUrl)) {
+      totalBlacklisted++;
+      continue;
+    }
+
     let price = 0;
     if (colMap.price !== -1 && cols[colMap.price]) {
       price = parseFloat(cols[colMap.price].replace(/[^0-9.]/g, '')) || 0;
@@ -294,12 +331,11 @@ async function runMassiveCatalogPipeline() {
       }
     }
 
-    const rawAffUrl = (colMap.affiliateUrl !== -1 && cols[colMap.affiliateUrl]) ? cols[colMap.affiliateUrl] : '';
     const affiliateUrl = normalizeCJUrl(rawAffUrl, merchant);
     const imageUrl = (colMap.imageUrl !== -1 && cols[colMap.imageUrl]) ? cols[colMap.imageUrl] : FALLBACK_IMAGE;
     const tags = (colMap.tags !== -1 && cols[colMap.tags]) ? cols[colMap.tags] : `${category},${merchant.toLowerCase()}`;
 
-    // Filtrado estricto de productos rotos/404
+    // Filtrado estricto de enlaces muertos / 404
     if (isDeadProduct(affiliateUrl, title, merchant)) {
       totalPurged++;
       continue;
@@ -323,7 +359,7 @@ async function runMassiveCatalogPipeline() {
       totalSaved += batch.length;
       batch = [];
       const memMb = (process.memoryUsage().heapUsed / 1024 / 1024).toFixed(1);
-      process.stdout.write(`\r[CHUNK BATCH] Procesados: ${totalProcessed.toLocaleString()} | Guardados en DB: ${totalSaved.toLocaleString()} | RAM: ${memMb}MB`);
+      process.stdout.write(`\r[CHUNK BATCH] Procesados: ${totalProcessed.toLocaleString()} | Guardados en DB: ${totalSaved.toLocaleString()} | Excluidos: ${totalBlacklisted.toLocaleString()} | RAM: ${memMb}MB`);
     }
   }
 
@@ -342,7 +378,7 @@ async function runMassiveCatalogPipeline() {
   db.exec('VACUUM;');
   db.pragma('wal_checkpoint(TRUNCATE)');
 
-  // 3. Exportar muestra representativa de alta calidad (primeros 500 productos limpios) a data.json
+  // 3. Exportar muestra representativa de alta calidad libre de Booking y AliExpress
   console.log(`📁 Exportando catálogo limpio a data.json y public/data/products.json...`);
   const curatedSample = db.prepare(`
     SELECT id, title, description, price, sale_price as salePrice, merchant, category, affiliate_url as affiliateUrl, image_url as imageUrl, tags
@@ -392,18 +428,19 @@ async function runMassiveCatalogPipeline() {
   db.close();
 
   console.log('\n===============================================================');
-  console.log('🏁 INGESTA Y VALIDACIÓN MASIVA COMPLETADA EXITOSAMENTE:');
+  console.log('🏁 INGESTA Y EXCLUSIÓN COMPLETADA EXITOSAMENTE:');
   console.log(`- 📦 Total registros procesados:    ${totalProcessed.toLocaleString()}`);
   console.log(`- ✅ Total productos activos en DB:  ${totalInDb.toLocaleString()}`);
-  console.log(`- 🏢 Marcas / Anunciantes:          ${totalMerchants}`);
+  console.log(`- 🏢 Marcas / Anunciantes activos:  ${totalMerchants}`);
   console.log(`- 🏷️ Categorías:                    ${totalCategories}`);
+  console.log(`- ⛔ Anunciantes excluidos:         ${totalBlacklisted.toLocaleString()} (Booking / AliExpress)`);
   console.log(`- 🗑️ Registros rotos purgados:      ${totalPurged.toLocaleString()}`);
-  console.log(`- ⚡ Tiempo total de ejecución:     ${elapsedSec}s (${Math.round(totalInDb / elapsedSec).toLocaleString()} productos/segundo)`);
+  console.log(`- ⚡ Tiempo total de ejecución:     ${elapsedSec}s`);
   console.log(`- 📂 Dataset exportado:             ${DATA_JSON_PATH}`);
   console.log('===============================================================\n');
 }
 
 runMassiveCatalogPipeline().catch((err) => {
-  console.error('❌ Error fatal en pipeline masivo:', err);
+  console.error('❌ Error fatal en pipeline:', err);
   process.exit(1);
 });

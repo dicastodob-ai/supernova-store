@@ -48,9 +48,9 @@ export interface NetPresetOption {
 export const NET_PRESETS: NetPresetOption[] = [
   { id: 'all', label: 'All' },
   { id: 'cj', label: 'CJ Network' },
-  { id: 'aliexpress', label: 'AliExpress' },
-  { id: 'booking', label: 'Booking.com' },
-  { id: 'zinio', label: 'Zinio' }
+  { id: 'zinio', label: 'Zinio' },
+  { id: 'ashampoo', label: 'Ashampoo' },
+  { id: 'wondershare', label: 'Wondershare' }
 ];
 
 export interface FilterParams {
@@ -64,16 +64,17 @@ export const parseCatalogQuery = (netQuery?: string, categoryQuery?: string): Fi
 
   // Resolución del selector NET / Merchant
   switch (netQuery?.toLowerCase()) {
-    case 'aliexpress':
-      filters.merchant = 'AliExpress';
-      break;
-    case 'booking':
-      filters.merchant = 'Booking.com';
-      filters.category = 'travel';
-      break;
     case 'zinio':
       filters.merchant = 'Zinio';
       filters.category = 'media';
+      break;
+    case 'ashampoo':
+      filters.merchant = 'Ashampoo';
+      filters.category = 'tech';
+      break;
+    case 'wondershare':
+      filters.merchant = 'Wondershare';
+      filters.category = 'tech';
       break;
     case 'cj':
       filters.network = 'CJ';
