@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Inter, Plus_Jakarta_Sans } from 'next/font/google';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import CJLinkRepair from '@/components/CJLinkRepair';
 import './globals.css';
 
 const inter = Inter({
@@ -37,6 +38,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.variable} ${plusJakartaSans.variable} font-body antialiased bg-[#F9F9F8] text-[#2D3142] min-h-screen flex flex-col`}>
+        <CJLinkRepair />
         <Header />
         <main className="flex-1 pt-20">
           {children}

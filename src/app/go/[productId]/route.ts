@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getProductById, getPublicBaseUrl } from '@/lib/products';
+import { sanitizeCJLink } from '@/lib/cj-link-repair';
 
 export async function GET(
   request: NextRequest,
@@ -17,7 +18,7 @@ export async function GET(
       return NextResponse.redirect(homeUrl.toString(), 302);
     }
 
-    const rawUrl = product.affiliate.url || '';
+    const rawUrl = sanitizeCJLink(product.affiliate.url || '');
 
     // Check if URL is an external affiliate destination (real CJ link or merchant checkout)
     const isExternalAffiliate =
@@ -36,10 +37,15 @@ export async function GET(
       !targetUrl.includes('tkqlhce.com') &&
       !targetUrl.includes('dpbolvw.net') &&
       !targetUrl.includes('jdoqocy.com') &&
+      !targetUrl.includes('kqzyfj.com') &&
+      !targetUrl.includes('qksrv.net') &&
+      !targetUrl.includes('emjcd.com') &&
       !targetUrl.includes('supernovastore.humancentric.online')
     ) {
       targetUrl = `https://www.anrdoezrs.net/links/7999396/type/dlg/sid/supernova/${targetUrl}`;
     }
+
+    targetUrl = sanitizeCJLink(targetUrl);
 
     if (isExternalAffiliate) {
       try {

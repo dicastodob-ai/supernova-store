@@ -32,7 +32,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         <Link
           href={`/go/${product.id}`}
           target="_blank"
-          rel="noopener noreferrer"
+          rel="noopener noreferrer sponsored"
           className="block aspect-[3/4] overflow-hidden rounded-lg bg-[#F3F3F0] mb-4 relative"
         >
           <Image
@@ -64,7 +64,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             <Link
               href={`/go/${product.id}`}
               target="_blank"
-              rel="noopener noreferrer"
+              rel="noopener noreferrer sponsored"
               className="hover:text-[#D96B27] transition-colors"
             >
               {product.title}
@@ -95,7 +95,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         <Link
           href={`/go/${product.id}`}
           target="_blank"
-          rel="noopener noreferrer"
+          rel="noopener noreferrer sponsored"
           className="cta-btn !py-2 !px-4 !text-[11px] whitespace-nowrap"
         >
           VER OFERTA VIP →
