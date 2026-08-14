@@ -6,6 +6,7 @@ import { Product } from '@/types/product';
 import FilterBar from '@/components/FilterBar';
 import ProductGrid from '@/components/ProductGrid';
 import Pagination from '@/components/Pagination';
+import HeroBanner from '@/components/HeroBanner';
 
 function StoreContent() {
   const searchParams = useSearchParams();
@@ -130,33 +131,14 @@ function StoreContent() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-6 md:px-12 pt-8">
-      {/* Hero Section */}
-      <section className="py-12 md:py-16 border-b border-[#ECECE8] mb-10">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-          <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#D96B27]/10 text-[#D96B27] text-xs font-bold uppercase tracking-wider mb-3">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#D96B27]"></span>
-              Multi-Advertiser Catalog • Verified CJ Feeds
-            </div>
-            <h1 className="hero-title text-3xl md:text-5xl font-extrabold tracking-tight text-[#0B2545] leading-tight">
-              Curated Directory
-            </h1>
-            <p className="text-sm text-[#5C6479] mt-2 max-w-xl">
-              Handpicked deals from premier verified global merchants. Direct affiliate attribution guaranteed.
-            </p>
-          </div>
-          <div className="text-left md:text-right">
-            <p className="text-xs text-[#5C6479] font-medium leading-relaxed max-w-sm">
-              Booking.com • AliExpress • Wondershare • Zinio • Ashampoo • Whokeys • Abracadabra NYC
-            </p>
-          </div>
-        </div>
-      </section>
+    <div>
+      {/* Hero Showcase Banner */}
+      <HeroBanner />
 
-      {/* Instant Filters & Search Bar */}
-      <section className="pb-16">
-        <FilterBar
+      <div className="max-w-7xl mx-auto px-6 md:px-12 pt-8">
+        {/* Instant Filters & Search Bar */}
+        <section className="pb-16" id="catalog">
+          <FilterBar
           categories={categories}
           networks={networks}
           activeCategory={activeCategory}
@@ -195,7 +177,8 @@ function StoreContent() {
             />
           </>
         )}
-      </section>
+        </section>
+      </div>
     </div>
   );
 }

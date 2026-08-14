@@ -38,7 +38,20 @@ async function runResponsiveTests() {
     const page = await context.newPage();
 
     try {
-      await page.goto(TARGET_URL, { waitUntil: 'networkidle', timeout: 30000 });
+      let attempts = 0;
+      let loaded = false;
+      while (attempts < 2 && !loaded) {
+        attempts++;
+        try {
+          await page.goto(TARGET_URL, { waitUntil: 'domcontentloaded', timeout: 45000 });
+          await page.waitForTimeout(3000);
+          loaded = true;
+        } catch (e) {
+          if (attempts >= 2) throw e;
+          console.log(`   ⏳ Reintentando conexión con ${deviceConfig.name}...`);
+          await page.waitForTimeout(2000);
+        }
+      }
 
       // 1. Validar etiqueta Meta Viewport
       const hasViewportMeta = await page.evaluate(() => {
