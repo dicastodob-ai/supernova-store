@@ -9,6 +9,7 @@
     "lint": "next lint",
     "import:feed": "node scripts/import-feed.js",
     "sync:cj": "node scripts/fetch-cj-api.js",
+    "validate:catalog": "node scripts/validate-catalog-urls.js",
     "export:wp": "node scripts/export-wp-csv.js",
     "render:build": "bash scripts/render-build.sh",
     "render:start": "bash scripts/render-start.sh"
