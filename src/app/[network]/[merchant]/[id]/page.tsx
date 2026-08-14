@@ -105,7 +105,7 @@ export default async function ProductDetailPage({ params }: Props) {
             <a
               href={merchantFallbackUrl}
               target="_blank"
-              rel="noopener noreferrer sponsored"
+              rel="noopener noreferrer nofollow"
               className="inline-flex items-center justify-center px-6 py-3 bg-[#D96B27] hover:bg-[#B8581C] text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-md"
             >
               Ver Tienda Oficial de {decodeURIComponent(merchant)} →
@@ -208,7 +208,7 @@ export default async function ProductDetailPage({ params }: Props) {
             <a
               href={directCjUrl}
               target="_blank"
-              rel="noopener noreferrer sponsored"
+              rel="noopener noreferrer nofollow"
               className="w-full inline-flex items-center justify-center py-4 px-8 bg-[#D96B27] hover:bg-[#B8581C] text-white font-heading font-extrabold text-sm uppercase tracking-wider rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl hover:-translate-y-0.5 cursor-pointer"
             >
               Comprar en {product.merchant} (Sitio Oficial) →

@@ -35,7 +35,7 @@ export function ProductCard({ product }: { product: Product }) {
         <a
           href={cjUrl}
           target="_blank"
-          rel="noopener noreferrer sponsored"
+          rel="noopener noreferrer nofollow"
           onClick={(e) => e.stopPropagation()}
           className="block relative w-full h-48 sm:h-52 mb-4 overflow-hidden rounded-lg sm:rounded-xl bg-[#F9F9F8] flex items-center justify-center"
         >
@@ -64,7 +64,7 @@ export function ProductCard({ product }: { product: Product }) {
           <a
             href={cjUrl}
             target="_blank"
-            rel="noopener noreferrer sponsored"
+            rel="noopener noreferrer nofollow"
             onClick={(e) => e.stopPropagation()}
           >
             {product.title}
@@ -95,7 +95,7 @@ export function ProductCard({ product }: { product: Product }) {
         <a
           href={cjUrl}
           target="_blank"
-          rel="noopener noreferrer sponsored"
+          rel="noopener noreferrer nofollow"
           onClick={(e) => e.stopPropagation()}
           className="w-full inline-flex items-center justify-center py-2.5 px-4 bg-[#0B2545] hover:bg-[#D96B27] text-white font-heading font-bold text-xs uppercase tracking-wider rounded-lg md:rounded-xl transition-all duration-200 shadow-sm hover:shadow-md cursor-pointer"
         >

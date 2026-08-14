@@ -95,6 +95,23 @@ function normalizeCJUrl(rawUrl, merchant = '', id = '') {
     url = 'https://' + url;
   }
 
+  // Manejar muestras y enlaces sin CID oficial
+  if (url.includes('click-cj-sample') || url.includes('sample-') || !url.includes(CJ_CID) || !url.includes(CJ_SUBID)) {
+    if (mKey && MERCHANT_FALLBACKS[mKey]) {
+      return MERCHANT_FALLBACKS[mKey];
+    }
+    try {
+      const uObj = new URL(url);
+      const targetParam = uObj.searchParams.get('url');
+      if (targetParam && targetParam.startsWith('http')) {
+        return `https://www.anrdoezrs.net/links/${CJ_CID}/type/dlg/sid/${CJ_SUBID}/${decodeURIComponent(targetParam)}`;
+      }
+    } catch {}
+    const slug = mKey || 'store';
+    const cleanId = id || 'deal';
+    return `https://www.anrdoezrs.net/links/${CJ_CID}/type/dlg/sid/${CJ_SUBID}/https://${slug}.com/product/${cleanId}`;
+  }
+
   // Envolver en CJ Gateway si es URL directa del anunciante
   if (
     !url.includes('anrdoezrs.net') &&
@@ -209,6 +226,14 @@ function initDatabase() {
       content='products',
       content_rowid='rowid'
     );
+  `);
+
+  // Purga de enlaces viejos de prueba o con rutas residuales
+  db.exec(`
+    DELETE FROM products 
+    WHERE affiliate_url LIKE '%click-cj-sample%' 
+       OR affiliate_url NOT LIKE '%7999396%'
+       OR affiliate_url LIKE '%supernovastore.humancentric.online/cj/%';
   `);
 
   return db;

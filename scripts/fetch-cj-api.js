@@ -223,11 +223,11 @@ function upsertProducts(db, products) {
 function runDemoSync(db) {
   console.log(`\n[CJ_DEMO] Generating 25 realistic CJ Affiliate products for preview...`);
   const demoBrands = [
-    { name: 'AliExpress', cat: 'electronics', id: '1001' },
-    { name: 'Ashampoo Software', cat: 'electronics', id: '1002' },
-    { name: 'Booking.com', cat: 'home', id: '1003' },
-    { name: 'GearUP Games', cat: 'electronics', id: '1004' },
-    { name: 'HumanCentric', cat: 'home', id: '1005' },
+    { name: 'Zinio', cat: 'media', id: '1001' },
+    { name: 'Ashampoo Software', cat: 'tech', id: '1002' },
+    { name: 'Wondershare', cat: 'tech', id: '1003' },
+    { name: 'GearUP Games', cat: 'tech', id: '1004' },
+    { name: 'HumanCentric', cat: 'lifestyle', id: '1005' },
     { name: 'Monochrome Living', cat: 'fashion', id: '1006' },
   ];
 
@@ -240,9 +240,10 @@ function runDemoSync(db) {
     const price = (29.99 + (i * 12.5)).toFixed(2);
     const salePrice = i % 2 === 0 ? (parseFloat(price) * 0.85).toFixed(2) : null;
     const category = brand.cat;
-    const affiliateUrl = `https://www.anrdoezrs.net/click-cj-sample-${i}?url=https%3A%2F%2F${brand.name.toLowerCase().replace(/[^a-z0-9]/g, '')}.com%2Fitem-${i}`;
+    const slug = brand.name.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const affiliateUrl = `https://www.anrdoezrs.net/links/7999396/type/dlg/sid/supernova/https://${slug}.com/item-${i}`;
     const imageUrl = `https://picsum.photos/seed/cj_${i}/600/800`;
-    const tags = `cj,${brand.name.toLowerCase()},${category},affiliate`;
+    const tags = `cj,${slug},${category},affiliate`;
 
     demoItems.push({
       id,
