@@ -2,39 +2,42 @@ import React from 'react';
 
 export default function HeroBanner() {
   return (
-    <section id="supernova-demo-hero" className="relative w-full bg-[#F9F9F8] border-b border-[#ECECE8]">
-      <div className="py-12 px-5 sm:px-6 lg:px-8 max-w-[1100px] mx-auto text-center font-body">
+    <section id="supernova-demo-hero" className="w-full bg-[#F9F9F8] py-8 md:py-12 border-b border-[#ECECE8]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Bloque Superior: Encabezados y Llamada a la Acción */}
-        <div className="inline-block bg-[#D96B27]/10 border border-[#D96B27]/30 text-[#D96B27] text-[11px] font-bold uppercase tracking-[0.08em] px-4 py-1.5 rounded-full mb-4 font-heading">
-          ★ Human-Centric Living
-        </div>
-
-        <h1 className="text-[#0B2545] text-[clamp(2rem,4vw,3.5rem)] font-extrabold leading-[1.15] tracking-[-0.02em] mb-4 font-heading">
-          Design &amp; Technology for Real Life
-        </h1>
-
-        <p className="text-[#5C6479] text-[clamp(0.95rem,1.5vw,1.15rem)] max-w-[620px] mx-auto mb-8 leading-[1.6]">
-          Una cuidada selección de dispositivos, accesorios y experiencias diseñadas para integrarse de forma natural en tu espacio.
-        </p>
-
-        <div className="mb-11">
-          <a
-            href="#catalog"
-            className="inline-block bg-[#D96B27] hover:bg-[#B8551B] text-white font-heading font-bold text-sm uppercase tracking-[0.06em] px-9 py-4 rounded-full shadow-[0_10px_25px_rgba(217,107,39,0.3)] transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
-          >
-            Explore the Collection
-          </a>
-        </div>
-
-        {/* Bloque Central: Fotografía Protagonista de la Maqueta */}
-        <div className="max-w-[960px] mx-auto rounded-[20px] overflow-hidden border border-[#ECECE8] shadow-[0_20px_40px_rgba(11,37,69,0.08)] bg-white group">
+        {/* Contenedor Principal con Imagen y Gradiente Overlay */}
+        <div className="relative w-full h-[550px] md:h-[650px] overflow-hidden rounded-2xl md:rounded-3xl border border-[#ECECE8] shadow-2xl shadow-[#0B2545]/15">
           <img
-            src="/images/hero-supernova-showcase.jpg"
-            alt="Supernova Collection"
-            className="w-full h-auto max-h-[480px] object-cover object-center transition-transform duration-700 group-hover:scale-[1.01]"
+            src="/hero-banner.jpg"
+            alt="Supernova Store - Ofertas Exclusivas"
+            className="w-full h-full object-cover object-top md:object-center brightness-90 transition-transform duration-700 hover:scale-[1.02]"
             loading="eager"
           />
+          
+          {/* Overlay Gradiente con Textos y CTA */}
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0B2545]/90 via-[#0B2545]/40 to-transparent flex flex-col justify-end p-8 md:p-14">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#D96B27]/20 border border-[#D96B27]/40 text-[#D96B27] text-xs font-bold uppercase tracking-wider mb-4 w-fit font-heading backdrop-blur-sm">
+              ★ Human-Centric Living
+            </div>
+
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-4 leading-tight font-heading max-w-2xl">
+              Las mejores marcas, <br />
+              <span className="text-[#D96B27]">precios exclusivos</span>
+            </h1>
+
+            <p className="text-slate-200 text-base md:text-lg mb-8 max-w-xl font-body leading-relaxed">
+              Descubre tecnología, viajes, software y entretenimiento con ofertas directas y verificadas.
+            </p>
+
+            <div>
+              <a
+                href="#catalog"
+                className="inline-flex items-center justify-center px-8 py-4 bg-[#D96B27] hover:bg-[#B8551B] text-white font-heading font-bold rounded-xl md:rounded-2xl text-sm sm:text-base uppercase tracking-wider transition-all duration-300 shadow-xl shadow-[#D96B27]/30 hover:shadow-[#D96B27]/50 transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
+              >
+                Explorar Ofertas Destacadas →
+              </a>
+            </div>
+          </div>
         </div>
 
       </div>
