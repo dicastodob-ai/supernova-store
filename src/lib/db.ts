@@ -174,9 +174,24 @@ export function queryProducts(
     let hasFilters = false;
 
     if (filters?.category && filters.category !== ('all' as ProductCategory)) {
-      whereClauses.push('category = @category');
-      params.category = filters.category;
-      hasFilters = true;
+      const cat = String(filters.category).toLowerCase();
+      if (cat === 'tech') {
+        whereClauses.push("(category = 'electronics' OR tags LIKE '%software%' OR tags LIKE '%tech%')");
+        hasFilters = true;
+      } else if (cat === 'travel') {
+        whereClauses.push("(category = 'home' AND (LOWER(merchant) = 'booking.com' OR tags LIKE '%travel%' OR tags LIKE '%stay%'))");
+        hasFilters = true;
+      } else if (cat === 'media') {
+        whereClauses.push("(category = 'books' OR LOWER(merchant) = 'zinio' OR tags LIKE '%magazines%' OR tags LIKE '%press%')");
+        hasFilters = true;
+      } else if (cat === 'lifestyle') {
+        whereClauses.push("(category IN ('fashion', 'accessories', 'beauty', 'sports', 'home') AND LOWER(merchant) != 'booking.com')");
+        hasFilters = true;
+      } else {
+        whereClauses.push('category = @category');
+        params.category = filters.category;
+        hasFilters = true;
+      }
     }
 
     if (filters?.network && filters.network !== ('all' as unknown as AffiliateNetwork)) {

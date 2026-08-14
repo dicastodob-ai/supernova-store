@@ -7,30 +7,36 @@ export default function Header() {
         <Link href="/" className="font-bold text-base md:text-lg tracking-[0.3em] uppercase font-courier">
           SUPERNOVA
         </Link>
-        <nav className="flex items-center gap-6 md:gap-8 font-courier">
+        <nav className="flex items-center gap-5 md:gap-8 font-courier">
           <Link
             href="/"
             className="text-xs tracking-[0.2em] uppercase hover:line-through transition-all duration-200"
           >
-            All Items
+            All
           </Link>
           <Link
-            href="/?category=electronics"
+            href="/?category=tech"
             className="text-xs tracking-[0.2em] uppercase hover:line-through transition-all duration-200 hidden sm:inline-block"
           >
-            Tech
+            Tech & Software
           </Link>
           <Link
-            href="/?category=fashion"
+            href="/?category=travel"
             className="text-xs tracking-[0.2em] uppercase hover:line-through transition-all duration-200 hidden sm:inline-block"
           >
-            Fashion
+            Travel & Stays
           </Link>
           <Link
-            href="/?category=home"
+            href="/?category=media"
             className="text-xs tracking-[0.2em] uppercase hover:line-through transition-all duration-200 hidden md:inline-block"
           >
-            Living
+            Magazines & Press
+          </Link>
+          <Link
+            href="/?category=lifestyle"
+            className="text-xs tracking-[0.2em] uppercase hover:line-through transition-all duration-200 hidden md:inline-block"
+          >
+            Lifestyle
           </Link>
           <Link
             href="/about"

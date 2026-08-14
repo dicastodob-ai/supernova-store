@@ -14,7 +14,28 @@ export type ProductCategory =
   | 'beauty'
   | 'sports'
   | 'books'
-  | 'accessories';
+  | 'accessories'
+  | 'tech'
+  | 'travel'
+  | 'media'
+  | 'lifestyle'
+  | 'all';
+
+export interface CategoryOption {
+  id: string;
+  label: string;
+}
+
+/**
+ * Configuración de categorías frontend
+ */
+export const CATEGORIES: CategoryOption[] = [
+  { id: 'all', label: 'All Categories' },
+  { id: 'tech', label: 'Tech & Software' },
+  { id: 'travel', label: 'Travel & Stays' },
+  { id: 'media', label: 'Magazines & Press' },
+  { id: 'lifestyle', label: 'Lifestyle' }
+];
 
 export interface AffiliateLink {
   /** The affiliate network this link belongs to */

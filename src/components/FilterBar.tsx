@@ -1,7 +1,9 @@
 'use client';
 
+import { CATEGORIES } from '@/types/product';
+
 interface FilterBarProps {
-  categories: string[];
+  categories?: string[];
   networks: string[];
   activeCategory: string;
   activeNetwork: string;
@@ -15,7 +17,6 @@ interface FilterBarProps {
 }
 
 export default function FilterBar({
-  categories,
   networks,
   activeCategory,
   activeNetwork,
@@ -27,7 +28,6 @@ export default function FilterBar({
   onSearchChange,
   totalProducts,
 }: FilterBarProps) {
-  const allCategories = ['all', ...categories.filter((c) => c !== 'all')];
   const allNetworks = ['all', ...networks.filter((n) => n !== 'all' && n.toLowerCase() !== 'impact')];
 
   return (
@@ -40,7 +40,7 @@ export default function FilterBar({
             type="text"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="SEARCH 143K CATALOG (e.g. SONY, LEATHER, OAK)..."
+            placeholder="SEARCH CATALOG (e.g. SONY, BOUTIQUE, FILMORA)..."
             className="w-full bg-white text-black text-xs uppercase tracking-wider py-2.5 px-3 border border-black placeholder:opacity-30 focus:outline-none focus:ring-1 focus:ring-black"
           />
           {searchQuery && (
@@ -96,22 +96,22 @@ export default function FilterBar({
         </div>
       </div>
 
-      {/* Categories Bar */}
+      {/* Curated Categories Bar */}
       <div className="flex flex-wrap gap-2 items-center">
         <span className="text-[9px] uppercase tracking-widest opacity-40 mr-1 select-none">
           CATEGORIES:
         </span>
-        {allCategories.map((cat) => (
+        {CATEGORIES.map((cat) => (
           <button
-            key={cat}
-            onClick={() => onCategoryChange(cat)}
+            key={cat.id}
+            onClick={() => onCategoryChange(cat.id)}
             className={`text-[10px] tracking-[0.15em] uppercase px-3 py-1.5 border transition-all duration-150 ${
-              activeCategory === cat
+              activeCategory.toLowerCase() === cat.id.toLowerCase()
                 ? 'bg-black text-white border-black font-bold'
                 : 'bg-transparent text-black border-transparent hover:border-black hover:line-through'
             }`}
           >
-            {cat}
+            {cat.label}
           </button>
         ))}
       </div>
