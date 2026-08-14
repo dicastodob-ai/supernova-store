@@ -9,31 +9,46 @@ export async function GET(
   const product = getProductById(productId);
 
   if (!product) {
-    return NextResponse.json(
-      { error: 'Product not found' },
-      { status: 404 }
-    );
+    // Graceful fallback to home page instead of hard error
+    const homeUrl = new URL('/', request.nextUrl.origin);
+    return NextResponse.redirect(homeUrl.toString(), 302);
   }
 
-  // Build the affiliate URL with tracking params
-  const affiliateUrl = new URL(product.affiliate.url);
+  let targetUrlString = product.affiliate.url;
 
-  // Append UTM parameters for tracking
-  affiliateUrl.searchParams.set('utm_source', 'supernova');
-  affiliateUrl.searchParams.set('utm_medium', 'affiliate');
-  affiliateUrl.searchParams.set('utm_campaign', product.affiliate.network);
+  // If internal simulated URL, redirect to merchant Google search
+  if (
+    targetUrlString.includes('supernovastore.humancentric.online/affiliate') ||
+    targetUrlString.includes('example.com') ||
+    targetUrlString.startsWith('/affiliate')
+  ) {
+    targetUrlString = `https://www.google.com/search?q=${encodeURIComponent(
+      `${product.title} ${product.merchant}`.trim()
+    )}`;
+  }
 
-  // Preserve any incoming query params (e.g., sub-tracking IDs)
-  const incomingParams = request.nextUrl.searchParams;
-  incomingParams.forEach((value, key) => {
-    if (!key.startsWith('utm_')) {
-      affiliateUrl.searchParams.set(key, value);
-    }
-  });
+  try {
+    const affiliateUrl = new URL(targetUrlString);
 
-  // Log the click event (placeholder for analytics service)
-  console.log(`[AFFILIATE CLICK] Product: ${product.id} | Network: ${product.affiliate.network} | Merchant: ${product.merchant} | Time: ${new Date().toISOString()}`);
+    // Append UTM parameters for tracking
+    affiliateUrl.searchParams.set('utm_source', 'supernova');
+    affiliateUrl.searchParams.set('utm_medium', 'affiliate');
+    affiliateUrl.searchParams.set('utm_campaign', product.affiliate.network || 'cj');
 
-  // 302 redirect to affiliate URL
-  return NextResponse.redirect(affiliateUrl.toString(), 302);
+    // Forward any incoming query parameters
+    const incomingParams = request.nextUrl.searchParams;
+    incomingParams.forEach((value, key) => {
+      if (!key.startsWith('utm_')) {
+        affiliateUrl.searchParams.set(key, value);
+      }
+    });
+
+    console.log(
+      `[AFFILIATE CLICK] Product: ${product.id} | Network: ${product.affiliate.network} | Merchant: ${product.merchant} -> ${affiliateUrl.hostname}`
+    );
+
+    return NextResponse.redirect(affiliateUrl.toString(), 302);
+  } catch {
+    return NextResponse.redirect(targetUrlString, 302);
+  }
 }

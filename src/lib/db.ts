@@ -236,7 +236,24 @@ export function queryProducts(
 
 export function getProductByIdFromDb(id: string): Product | undefined {
   const db = getDb();
-  const row = db.prepare('SELECT * FROM products WHERE id = ? AND is_active = 1').get(id) as DbProductRow | undefined;
+  
+  // 1. Direct ID match
+  let row = db.prepare('SELECT * FROM products WHERE id = ? AND is_active = 1').get(id) as DbProductRow | undefined;
+  
+  // 2. Try zero-padded ID (e.g. prod-142999 -> prod-000142999 or vice-versa)
+  if (!row && id.startsWith('prod-')) {
+    const rawNum = id.replace(/^prod-0*/, '');
+    if (rawNum) {
+      const paddedId = `prod-${rawNum.padStart(6, '0')}`;
+      row = db.prepare('SELECT * FROM products WHERE id = ? AND is_active = 1').get(paddedId) as DbProductRow | undefined;
+    }
+  }
+
+  // 3. Fallback: match by affiliate_url suffix
+  if (!row) {
+    row = db.prepare('SELECT * FROM products WHERE affiliate_url LIKE ? AND is_active = 1 LIMIT 1').get(`%${id}%`) as DbProductRow | undefined;
+  }
+
   return row ? rowToProduct(row) : undefined;
 }
 
