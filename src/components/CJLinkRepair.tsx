@@ -1,76 +1,91 @@
 'use client';
 
 import { useEffect } from 'react';
-import { CJ_DOMAINS } from '@/lib/cj-link-repair';
+import { CJ_TRACKING_HOSTS, sanitizeAffiliateUrl } from '@/lib/cj-link-repair';
 
 export default function CJLinkRepair() {
   useEffect(() => {
-    // 1. Limpieza y reparación universal de URLs para cualquier anunciante
-    function fixAllAffiliateLinks() {
-      const clickableElements = document.querySelectorAll<HTMLElement>(
-        'a[href], button[data-href], .product-card a, .cta-btn, .button-primary'
-      );
+    // 3. Aplicar atributos y corregir enlaces en el DOM
+    function fixAllProductLinks() {
+      const selector =
+        'a[href], button[data-href], .product-card a, .cta-btn, .button-primary';
+      const elements = document.querySelectorAll<HTMLElement>(selector);
 
-      clickableElements.forEach((el) => {
-        const rawHref =
+      elements.forEach((el) => {
+        const currentHref =
           el.getAttribute('href') ||
           el.getAttribute('data-href') ||
           el.dataset.url;
-        if (!rawHref) return;
-
-        let href: string = rawHref;
-
-        // Deshacer concatenación indebida con el dominio propio (Error 404)
         if (
-          href.includes('supernovastore.humancentric.online') &&
-          CJ_DOMAINS.some((d) => href.includes(d))
-        ) {
-          const cjMatch = href.match(
-            /https?:\/\/[^\s"'<>]*(?:anrdoezrs|dpbolvw|tkqlhce|jdoqocy|kqzyfj|qksrv|emjcd)\.(?:net|com)[^\s"'<>]*/i
-          );
-          if (cjMatch) href = cjMatch[0];
-        }
+          !currentHref ||
+          currentHref === '#' ||
+          currentHref.startsWith('javascript:')
+        )
+          return;
 
-        // Si pertenece a la red de afiliados de CJ
-        if (CJ_DOMAINS.some((d) => href.includes(d))) {
-          if (href.startsWith('//')) href = 'https:' + href;
-          else if (!href.startsWith('http://') && !href.startsWith('https://')) href = 'https://' + href;
-
-          // Limpiar píxeles de impresión 1x1 incrustados en la cadena
-          if (href.includes('<img') || href.includes('.gif') || href.includes('img%20src')) {
-            const cleanUrl = href.match(/^(https?:\/\/[^\s"'<>]+)/i);
-            if (cleanUrl) href = cleanUrl[1];
-          }
+        const isCJ = CJ_TRACKING_HOSTS.some((h) => currentHref.includes(h));
+        if (isCJ) {
+          const cleanHref = sanitizeAffiliateUrl(currentHref);
 
           if (el.tagName.toLowerCase() === 'a') {
-            el.setAttribute('href', href);
+            el.setAttribute('href', cleanHref);
             el.setAttribute('target', '_blank');
             el.setAttribute('rel', 'noopener noreferrer sponsored');
           } else {
-            el.setAttribute('data-href', href);
-            el.onclick = (e) => {
-              e.preventDefault();
-              window.open(href, '_blank', 'noopener,noreferrer,sponsored');
-            };
+            el.setAttribute('data-href', cleanHref);
           }
         }
       });
     }
 
-    // 2. Ejecutar y observar cambios dinámicos de paginación y catálogo
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', fixAllAffiliateLinks);
-    } else {
-      fixAllAffiliateLinks();
+    // 4. Interceptor global de clics para evitar bloqueos del enrutador de Next.js
+    function handleGlobalClick(e: MouseEvent) {
+      const target = (e.target as HTMLElement | null)?.closest<HTMLElement>(
+        'a, button, .product-card, .cta-btn'
+      );
+      if (!target) return;
+
+      const href =
+        target.getAttribute('href') ||
+        target.getAttribute('data-href') ||
+        target.dataset.url;
+      if (!href) return;
+
+      const isCJ = CJ_TRACKING_HOSTS.some((h) => href.includes(h));
+      if (isCJ) {
+        const finalUrl = sanitizeAffiliateUrl(href);
+        // Evitar que el enrutador cliente de Next.js intente cargar la página de CJ como ruta interna
+        e.stopPropagation();
+
+        if (
+          target.tagName.toLowerCase() !== 'a' ||
+          target.getAttribute('target') !== '_blank'
+        ) {
+          e.preventDefault();
+          window.open(finalUrl, '_blank', 'noopener,noreferrer,sponsored');
+        }
+      }
     }
 
-    const observer = new MutationObserver(fixAllAffiliateLinks);
+    // Registrar interceptor en fase de captura (true)
+    document.addEventListener('click', handleGlobalClick, true);
+
+    // Inicialización
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', fixAllProductLinks);
+    } else {
+      fixAllProductLinks();
+    }
+
+    // Observador dinámico para catálogo paginado y filtros
+    const observer = new MutationObserver(fixAllProductLinks);
     observer.observe(document.body, {
       childList: true,
       subtree: true,
     });
 
     return () => {
+      document.removeEventListener('click', handleGlobalClick, true);
       observer.disconnect();
     };
   }, []);
