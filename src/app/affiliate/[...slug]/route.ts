@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getProductById } from '@/lib/products';
+import { getProductById, getPublicBaseUrl } from '@/lib/products';
 import { getDb, rowToProduct, DbProductRow } from '@/lib/db';
 
 export async function GET(
@@ -9,6 +9,9 @@ export async function GET(
   const { slug } = await params;
   const slugPath = slug ? slug.join('/') : '';
   const lastSegment = slug && slug.length > 0 ? slug[slug.length - 1] : '';
+
+  // Resolve official public base URL (guaranteed never to be 0.0.0.0 or localhost)
+  const publicBaseUrl = getPublicBaseUrl(request);
 
   // 1. Find product by last segment ID
   let product = lastSegment ? getProductById(lastSegment) : undefined;
@@ -34,10 +37,10 @@ export async function GET(
     }
   }
 
-  // 3. Fallback: if product is missing, redirect to store homepage
+  // 3. Fallback: if product is missing, redirect to official store homepage
   if (!product) {
     console.warn(`[AFFILIATE_ROUTE] Product not found for slug: /${slugPath}. Redirecting to store.`);
-    const fallbackUrl = new URL('/', request.nextUrl.origin);
+    const fallbackUrl = new URL('/', publicBaseUrl);
     if (lastSegment) {
       fallbackUrl.searchParams.set('search', lastSegment.replace(/^prod-0*/, ''));
     }
@@ -46,19 +49,21 @@ export async function GET(
 
   const rawUrl = product.affiliate.url || '';
 
-  // Check if URL is an external CJ affiliate link or valid external destination
+  // Check if URL is an external CJ affiliate link or valid external merchant destination
   const isExternalAffiliate =
     rawUrl.startsWith('http://') || rawUrl.startsWith('https://')
       ? !rawUrl.includes('supernovastore.humancentric.online/affiliate') &&
         !rawUrl.includes('example.com') &&
-        !rawUrl.includes('google.com')
+        !rawUrl.includes('google.com') &&
+        !rawUrl.includes('0.0.0.0') &&
+        !rawUrl.includes('localhost')
       : false;
 
   if (isExternalAffiliate) {
     try {
       const destinationUrl = new URL(rawUrl);
 
-      // Standard CJ affiliate tracking UTM parameters (always CJ, never Impact)
+      // Standard CJ affiliate tracking UTM parameters
       destinationUrl.searchParams.set('utm_source', 'supernova');
       destinationUrl.searchParams.set('utm_medium', 'affiliate');
       destinationUrl.searchParams.set('utm_campaign', 'cj');
@@ -80,8 +85,8 @@ export async function GET(
     }
   }
 
-  // For products without external links, keep user inside Supernova Store (no Google search)
-  const storeUrl = new URL('/', request.nextUrl.origin);
+  // For products without external links, redirect to the official storefront with search query
+  const storeUrl = new URL('/', publicBaseUrl);
   storeUrl.searchParams.set('search', product.title);
   return NextResponse.redirect(storeUrl.toString(), 302);
 }

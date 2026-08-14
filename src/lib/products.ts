@@ -76,10 +76,38 @@ export function getProductById(id: string): Product | undefined {
 export const PRODUCTION_BASE_URL = 'https://supernovastore.humancentric.online';
 
 /**
- * Get base URL with fallback to official production domain.
+ * Get base URL guaranteed to never return 0.0.0.0, localhost, or internal docker hosts in production.
  */
+export function getPublicBaseUrl(request?: { headers: { get: (name: string) => string | null } }): string {
+  // If explicitly configured in environment, use it if not 0.0.0.0
+  const envBase = process.env.NEXT_PUBLIC_BASE_URL;
+  if (envBase && !envBase.includes('0.0.0.0') && !envBase.includes('localhost') && !envBase.includes('127.0.0.1')) {
+    return envBase.replace(/\/+$/, '');
+  }
+
+  // Check forwarded headers if behind reverse proxy
+  if (request) {
+    try {
+      const forwardedHost = request.headers.get('x-forwarded-host') || request.headers.get('host');
+      const forwardedProto = request.headers.get('x-forwarded-proto') || 'https';
+      if (
+        forwardedHost &&
+        !forwardedHost.includes('0.0.0.0') &&
+        !forwardedHost.includes('localhost') &&
+        !forwardedHost.includes('127.0.0.1')
+      ) {
+        return `${forwardedProto}://${forwardedHost}`;
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  return PRODUCTION_BASE_URL;
+}
+
 export function getBaseUrl(): string {
-  return process.env.NEXT_PUBLIC_BASE_URL || PRODUCTION_BASE_URL;
+  return getPublicBaseUrl();
 }
 
 /**
@@ -87,7 +115,7 @@ export function getBaseUrl(): string {
  */
 export function getAffiliateRedirectUrl(productId: string, absolute = false): string {
   if (absolute) {
-    return `${getBaseUrl()}/go/${productId}`;
+    return `${getPublicBaseUrl()}/go/${productId}`;
   }
   return `/go/${productId}`;
 }

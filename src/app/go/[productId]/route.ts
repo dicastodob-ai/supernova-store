@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getProductById } from '@/lib/products';
+import { getProductById, getPublicBaseUrl } from '@/lib/products';
 
 export async function GET(
   request: NextRequest,
@@ -7,10 +7,11 @@ export async function GET(
 ) {
   const { productId } = await params;
   const product = getProductById(productId);
+  const publicBaseUrl = getPublicBaseUrl(request);
 
   if (!product) {
-    // Graceful fallback to home page
-    const homeUrl = new URL('/', request.nextUrl.origin);
+    // Graceful fallback to official store home page
+    const homeUrl = new URL('/', publicBaseUrl);
     return NextResponse.redirect(homeUrl.toString(), 302);
   }
 
@@ -21,7 +22,9 @@ export async function GET(
     rawUrl.startsWith('http://') || rawUrl.startsWith('https://')
       ? !rawUrl.includes('supernovastore.humancentric.online/affiliate') &&
         !rawUrl.includes('example.com') &&
-        !rawUrl.includes('google.com')
+        !rawUrl.includes('google.com') &&
+        !rawUrl.includes('0.0.0.0') &&
+        !rawUrl.includes('localhost')
       : false;
 
   if (isExternalAffiliate) {
@@ -51,8 +54,8 @@ export async function GET(
     }
   }
 
-  // If internal/missing, redirect gracefully to storefront with product search (never Google)
-  const fallbackStore = new URL('/', request.nextUrl.origin);
+  // If internal/missing, redirect gracefully to official storefront with product search (never 0.0.0.0)
+  const fallbackStore = new URL('/', publicBaseUrl);
   fallbackStore.searchParams.set('search', product.title);
   return NextResponse.redirect(fallbackStore.toString(), 302);
 }
