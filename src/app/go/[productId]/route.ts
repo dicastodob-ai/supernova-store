@@ -18,7 +18,7 @@ export async function GET(
       return NextResponse.redirect(homeUrl.toString(), 302);
     }
 
-    const rawUrl = sanitizeCJLink(product.affiliate.url || '');
+    const rawUrl = sanitizeCJLink(product.affiliate.url || '', product.merchant);
 
     // Check if URL is an external affiliate destination (real CJ link or merchant checkout)
     const isExternalAffiliate =
@@ -45,7 +45,7 @@ export async function GET(
       targetUrl = `https://www.anrdoezrs.net/links/7999396/type/dlg/sid/supernova/${targetUrl}`;
     }
 
-    targetUrl = sanitizeCJLink(targetUrl);
+    targetUrl = sanitizeCJLink(targetUrl, product.merchant);
 
     if (isExternalAffiliate) {
       try {

@@ -5,7 +5,7 @@ import { CJ_TRACKING_HOSTS, sanitizeAffiliateUrl } from '@/lib/cj-link-repair';
 
 export default function CJLinkRepair() {
   useEffect(() => {
-    // 3. Aplicar atributos y corregir enlaces en el DOM
+    // 1. Aplicar atributos y corregir enlaces en el DOM con fallback anti-404
     function fixAllProductLinks() {
       const selector =
         'a[href], button[data-href], .product-card a, .cta-btn, .button-primary';
@@ -23,9 +23,11 @@ export default function CJLinkRepair() {
         )
           return;
 
+        const merchant = el.closest('.product-card')?.querySelector('.text-\\[\\#D96B27\\]')?.textContent?.trim();
+
         const isCJ = CJ_TRACKING_HOSTS.some((h) => currentHref.includes(h));
         if (isCJ) {
-          const cleanHref = sanitizeAffiliateUrl(currentHref);
+          const cleanHref = sanitizeAffiliateUrl(currentHref, merchant);
 
           if (el.tagName.toLowerCase() === 'a') {
             el.setAttribute('href', cleanHref);
@@ -38,7 +40,7 @@ export default function CJLinkRepair() {
       });
     }
 
-    // 4. Interceptor global de clics para evitar bloqueos del enrutador de Next.js
+    // 2. Interceptor global de clics para evitar bloqueos del enrutador de Next.js
     function handleGlobalClick(e: MouseEvent) {
       const target = (e.target as HTMLElement | null)?.closest<HTMLElement>(
         'a, button, .product-card, .cta-btn'
@@ -51,9 +53,11 @@ export default function CJLinkRepair() {
         target.dataset.url;
       if (!href) return;
 
+      const merchant = target.closest('.product-card')?.querySelector('.text-\\[\\#D96B27\\]')?.textContent?.trim();
+
       const isCJ = CJ_TRACKING_HOSTS.some((h) => href.includes(h));
       if (isCJ) {
-        const finalUrl = sanitizeAffiliateUrl(href);
+        const finalUrl = sanitizeAffiliateUrl(href, merchant);
         // Evitar que el enrutador cliente de Next.js intente cargar la página de CJ como ruta interna
         e.stopPropagation();
 

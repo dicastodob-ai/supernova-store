@@ -12,7 +12,7 @@ export function ProductCard({ product }: { product: Product }) {
     product.affiliate?.url ||
     `/go/${product.id}`;
 
-  let cjUrl = sanitizeAffiliateUrl(rawAffiliateUrl);
+  let cjUrl = sanitizeAffiliateUrl(rawAffiliateUrl, product.merchant);
   if (!cjUrl || cjUrl === '/') {
     cjUrl = rawAffiliateUrl.startsWith('http')
       ? rawAffiliateUrl
@@ -40,7 +40,7 @@ export function ProductCard({ product }: { product: Product }) {
       className="product-card cursor-pointer group bg-white border border-[#ECECE8] rounded-xl md:rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between hover:-translate-y-1"
     >
       <div className="p-4 sm:p-5">
-        {/* Imagen del producto con enlace seguro */}
+        {/* Imagen del producto con enlace seguro directo */}
         <a
           href={cjUrl}
           target="_blank"
@@ -65,7 +65,7 @@ export function ProductCard({ product }: { product: Product }) {
           </span>
         </a>
 
-        {/* Metadatos y Título */}
+        {/* Metadatos y Título con enlace seguro directo */}
         <span className="text-xs font-bold text-[#D96B27] uppercase tracking-wider block font-heading">
           {product.merchant}
         </span>
@@ -86,7 +86,7 @@ export function ProductCard({ product }: { product: Product }) {
         )}
       </div>
 
-      {/* Precio y Botón CTA */}
+      {/* Precio y Botón CTA con enlace seguro directo */}
       <div className="p-4 sm:p-5 pt-0">
         <div className="pt-3 border-t border-[#ECECE8] flex items-center justify-between gap-3 mb-3">
           <div className="flex items-baseline gap-2">
@@ -106,7 +106,7 @@ export function ProductCard({ product }: { product: Product }) {
           target="_blank"
           rel="noopener noreferrer sponsored"
           onClick={(e) => e.stopPropagation()}
-          className="w-full inline-flex items-center justify-center py-2.5 px-4 bg-[#0B2545] hover:bg-[#D96B27] text-white font-heading font-bold text-xs uppercase tracking-wider rounded-lg md:rounded-xl transition-all duration-200 shadow-sm hover:shadow-md"
+          className="w-full inline-flex items-center justify-center py-2.5 px-4 bg-[#0B2545] hover:bg-[#D96B27] text-white font-heading font-bold text-xs uppercase tracking-wider rounded-lg md:rounded-xl transition-all duration-200 shadow-sm hover:shadow-md cursor-pointer"
         >
           Ver Oferta →
         </a>
