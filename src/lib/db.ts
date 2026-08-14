@@ -165,11 +165,19 @@ export function queryProducts(
 
   let useFts = false;
   if (filters?.search && filters.search.trim()) {
-    const cleanSearch = filters.search.trim().replace(/['"*]/g, '');
-    if (cleanSearch) {
-      // FTS search or LIKE fallback
-      whereClauses.push(`id IN (SELECT id FROM products_fts WHERE products_fts MATCH @searchQuery)`);
-      params.searchQuery = `"${cleanSearch}"*`;
+    const rawSearch = filters.search.trim();
+    // Sanitize input: extract alphanumeric tokens safely across unicode alphabets
+    const tokens = rawSearch
+      .replace(/[^\p{L}\p{N}\s]/gu, ' ')
+      .split(/\s+/)
+      .map((t) => t.trim())
+      .filter((t) => t.length > 0);
+
+    if (tokens.length > 0) {
+      const ftsQuery = tokens.map((t) => `"${t}"*`).join(' ');
+      whereClauses.push('(rowid IN (SELECT rowid FROM products_fts WHERE products_fts MATCH @searchQuery) OR id LIKE @searchLikeId)');
+      params.searchQuery = ftsQuery;
+      params.searchLikeId = `%${rawSearch.replace(/^prod-0*/, '')}%`;
       useFts = true;
     }
   }
@@ -189,14 +197,17 @@ export function queryProducts(
     const countRow = db.prepare(`SELECT COUNT(*) as count FROM products ${whereSql}`).get(params) as { count: number };
     total = countRow?.count || 0;
   } catch (err) {
+    console.warn('[DB_SEARCH] FTS5 query error, switching to safe LIKE fallback:', err);
     // If FTS fails on special syntax, fallback to LIKE search
     if (useFts && filters?.search) {
+      const rawSearch = filters.search.trim();
       const fallbackWhere = whereClauses
         .filter((w) => !w.includes('products_fts'))
-        .concat(['(title LIKE @likeQuery OR description LIKE @likeQuery OR merchant LIKE @likeQuery)']);
+        .concat(['(title LIKE @likeQuery OR description LIKE @likeQuery OR merchant LIKE @likeQuery OR id LIKE @likeQuery)']);
       const fallbackWhereSql = fallbackWhere.length > 0 ? `WHERE ${fallbackWhere.join(' AND ')}` : '';
-      params.likeQuery = `%${filters.search.trim()}%`;
+      params.likeQuery = `%${rawSearch}%`;
       delete params.searchQuery;
+      delete params.searchLikeId;
 
       const countRow = db.prepare(`SELECT COUNT(*) as count FROM products ${fallbackWhereSql}`).get(params) as { count: number };
       total = countRow?.count || 0;

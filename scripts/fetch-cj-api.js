@@ -358,8 +358,14 @@ async function main() {
         const category = mapToCategory(title, description, catalogName, brand);
         const price = item.price?.amount || 0;
         const salePrice = item.salePrice?.amount && item.salePrice.amount < price ? item.salePrice.amount : null;
-        const currency = item.price?.currency || 'USD';
-        const affiliateUrl = item.link || `https://supernovastore.humancentric.online/cj/${item.id}`;
+        let affiliateUrl = item.link || item.buyUrl || item.clickUrl || '';
+        const cidToUse = companyId || '7999396';
+        if (affiliateUrl && !affiliateUrl.includes('anrdoezrs.net') && !affiliateUrl.includes('tkqlhce.com') && !affiliateUrl.includes('dpbolvw.net') && !affiliateUrl.includes('jdoqocy.com')) {
+          affiliateUrl = `https://www.anrdoezrs.net/links/${cidToUse}/type/dlg/sid/supernova/${affiliateUrl}`;
+        } else if (!affiliateUrl) {
+          const cleanMerchant = (brand || 'merchant').toLowerCase().replace(/[^a-z0-9]/g, '');
+          affiliateUrl = `https://www.anrdoezrs.net/links/${cidToUse}/type/dlg/sid/supernova/https://${cleanMerchant}.com`;
+        }
         const imageUrl = item.imageLink || `https://picsum.photos/seed/cj_${item.id}/600/800`;
         const tags = `cj,${category},${brand.toLowerCase().replace(/[^a-z0-9]/g, '')}`;
 

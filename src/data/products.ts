@@ -14,7 +14,7 @@ export const products: Product[] = [
     tags: ['headphones', 'wireless', 'audio', 'noise-canceling', 'sony'],
     affiliate: {
       network: 'cj',
-      url: 'https://supernovastore.humancentric.online/affiliate/cj/sony-wh1000xm5',
+      url: 'https://www.anrdoezrs.net/links/7999396/type/dlg/sid/supernova/https://techhaven.com/item',
       advertiserId: 'tech-haven-33',
       campaignId: 'summer-sale-2025'
     },
@@ -33,7 +33,7 @@ export const products: Product[] = [
     tags: ['bag', 'backpack', 'canvas', 'minimalist', 'travel'],
     affiliate: {
       network: 'cj',
-      url: 'https://supernovastore.humancentric.online/affiliate/cj/minimalist-backpack',
+      url: 'https://www.anrdoezrs.net/links/7999396/type/dlg/sid/supernova/https://urbanthreads.com/backpack',
       advertiserId: 'urban-threads-89',
     },
     isActive: true,
@@ -52,7 +52,7 @@ export const products: Product[] = [
     tags: ['smart-home', 'security', 'hub', 'iot'],
     affiliate: {
       network: 'cj',
-      url: 'https://supernovastore.humancentric.online/affiliate/cj/smart-hub',
+      url: 'https://www.anrdoezrs.net/links/7999396/type/dlg/sid/supernova/https://homebase.com/smart-hub',
       advertiserId: 'homebase-12',
     },
     isActive: true,
@@ -70,7 +70,7 @@ export const products: Product[] = [
     tags: ['skincare', 'serum', 'hydration', 'vegan'],
     affiliate: {
       network: 'cj',
-      url: 'https://supernovastore.humancentric.online/affiliate/cj/hydrating-serum',
+      url: 'https://www.anrdoezrs.net/links/7999396/type/dlg/sid/supernova/https://glowbeauty.com/serum',
       advertiserId: 'glow-beauty-55',
       campaignId: 'spring-fresh-25'
     },
@@ -90,7 +90,7 @@ export const products: Product[] = [
     tags: ['yoga', 'fitness', 'mat', 'eco-friendly', 'workout'],
     affiliate: {
       network: 'cj',
-      url: 'https://supernovastore.humancentric.online/affiliate/cj/yoga-mat',
+      url: 'https://www.anrdoezrs.net/links/7999396/type/dlg/sid/supernova/https://zenfit.com/yoga-mat',
       advertiserId: 'zen-fit-99',
     },
     isActive: true,
@@ -108,7 +108,7 @@ export const products: Product[] = [
     tags: ['book', 'mindfulness', 'self-help', 'hardcover'],
     affiliate: {
       network: 'cj',
-      url: 'https://supernovastore.humancentric.online/affiliate/cj/mindful-living-book',
+      url: 'https://www.anrdoezrs.net/links/7999396/type/dlg/sid/supernova/https://chapterandverse.com/mindful',
       advertiserId: 'chapter-verse-11',
     },
     isActive: true,
@@ -127,7 +127,7 @@ export const products: Product[] = [
     tags: ['keyboard', 'gaming', 'mechanical', 'rgb', 'pc'],
     affiliate: {
       network: 'cj',
-      url: 'https://supernovastore.humancentric.online/affiliate/cj/mech-keyboard',
+      url: 'https://www.anrdoezrs.net/links/7999396/type/dlg/sid/supernova/https://techhaven.com/keyboard',
       advertiserId: 'tech-haven-33',
     },
     isActive: true,
@@ -145,7 +145,7 @@ export const products: Product[] = [
     tags: ['sunglasses', 'aviator', 'eyewear', 'polarized', 'fashion'],
     affiliate: {
       network: 'cj',
-      url: 'https://supernovastore.humancentric.online/affiliate/cj/aviator-sunglasses',
+      url: 'https://www.anrdoezrs.net/links/7999396/type/dlg/sid/supernova/https://urbanthreads.com/sunglasses',
       advertiserId: 'urban-threads-89',
       campaignId: 'summer-styles-25'
     },
