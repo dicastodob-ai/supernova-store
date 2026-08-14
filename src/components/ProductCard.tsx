@@ -12,11 +12,16 @@ export function ProductCard({ product }: { product: Product }) {
     product.affiliate?.url ||
     `/go/${product.id}`;
 
-  const cjUrl = sanitizeAffiliateUrl(rawAffiliateUrl) || (
-    rawAffiliateUrl.startsWith('http')
+  let cjUrl = sanitizeAffiliateUrl(rawAffiliateUrl);
+  if (!cjUrl || cjUrl === '/') {
+    cjUrl = rawAffiliateUrl.startsWith('http')
       ? rawAffiliateUrl
-      : `https://${rawAffiliateUrl}`
-  );
+      : `https://${rawAffiliateUrl}`;
+  } else if (cjUrl.startsWith('//')) {
+    cjUrl = `https:${cjUrl}`;
+  } else if (!cjUrl.startsWith('http://') && !cjUrl.startsWith('https://') && !cjUrl.startsWith('/')) {
+    cjUrl = `https://${cjUrl}`;
+  }
 
   const [imgSrc, setImgSrc] = useState<string>(product.imageUrl || FALLBACK_IMAGE);
 
@@ -35,8 +40,14 @@ export function ProductCard({ product }: { product: Product }) {
       className="product-card cursor-pointer group bg-white border border-[#ECECE8] rounded-xl md:rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between hover:-translate-y-1"
     >
       <div className="p-4 sm:p-5">
-        {/* Imagen del producto */}
-        <div className="relative w-full h-48 sm:h-52 mb-4 overflow-hidden rounded-lg sm:rounded-xl bg-[#F9F9F8] flex items-center justify-center">
+        {/* Imagen del producto con enlace seguro */}
+        <a
+          href={cjUrl}
+          target="_blank"
+          rel="noopener noreferrer sponsored"
+          onClick={(e) => e.stopPropagation()}
+          className="block relative w-full h-48 sm:h-52 mb-4 overflow-hidden rounded-lg sm:rounded-xl bg-[#F9F9F8] flex items-center justify-center"
+        >
           <img
             src={imgSrc}
             alt={product.title}
@@ -52,14 +63,21 @@ export function ProductCard({ product }: { product: Product }) {
           <span className="absolute bottom-2.5 right-2.5 bg-white/95 text-[#0B2545] text-[10px] font-bold tracking-wide px-2 py-0.5 rounded-md uppercase border border-[#ECECE8] shadow-sm font-heading">
             {product.category}
           </span>
-        </div>
+        </a>
 
         {/* Metadatos y Título */}
         <span className="text-xs font-bold text-[#D96B27] uppercase tracking-wider block font-heading">
           {product.merchant}
         </span>
         <h3 className="font-bold text-[#0B2545] text-base sm:text-lg mt-1 line-clamp-2 leading-snug font-heading group-hover:text-[#D96B27] transition-colors">
-          {product.title}
+          <a
+            href={cjUrl}
+            target="_blank"
+            rel="noopener noreferrer sponsored"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {product.title}
+          </a>
         </h3>
         {product.description && (
           <p className="text-xs sm:text-sm text-[#5C6479] mt-2 line-clamp-2 font-body leading-relaxed">
