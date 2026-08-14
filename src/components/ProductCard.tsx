@@ -26,53 +26,53 @@ export default function ProductCard({ product }: ProductCardProps) {
   };
 
   return (
-    <article className="group flex flex-col justify-between border border-black/10 bg-white p-4 transition-all duration-300 hover:border-black hover:shadow-[0_4px_20px_rgba(0,0,0,0.06)] font-courier">
+    <article className="product-card group flex flex-col justify-between p-4 transition-all duration-300 hover:-translate-y-1">
       <div>
         {/* Product Image Link */}
         <Link
           href={`/go/${product.id}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="block aspect-[3/4] overflow-hidden bg-black/[0.03] mb-4 relative"
+          className="block aspect-[3/4] overflow-hidden rounded-lg bg-[#F3F3F0] mb-4 relative"
         >
           <Image
             src={imageSrc}
             alt={product.title}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-            className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
             onError={handleImageError}
             unoptimized={imageSrc.startsWith('http')}
           />
           {hasDiscount && (
-            <span className="absolute top-2 left-2 bg-black text-white text-[9px] font-bold tracking-widest px-2 py-0.5 uppercase">
+            <span className="absolute top-2.5 left-2.5 bg-[#D96B27] text-white text-[10px] font-bold tracking-wider px-2.5 py-0.5 rounded-full uppercase shadow-sm">
               SALE
             </span>
           )}
-          <span className="absolute bottom-2 right-2 bg-white/90 text-black text-[9px] tracking-widest px-1.5 py-0.5 uppercase border border-black/10">
+          <span className="absolute bottom-2.5 right-2.5 bg-white/95 text-[#0B2545] text-[10px] font-semibold tracking-wide px-2 py-0.5 rounded-md uppercase border border-[#ECECE8] shadow-sm">
             {product.category}
           </span>
         </Link>
 
         {/* Product Info */}
         <div className="space-y-1.5">
-          <p className="text-[10px] tracking-[0.2em] uppercase opacity-50 font-bold">
+          <p className="text-[11px] tracking-wider uppercase text-[#5C6479] font-semibold">
             {product.merchant}
           </p>
 
-          <h3 className="text-xs tracking-[0.1em] uppercase font-bold leading-snug line-clamp-2">
+          <h3 className="text-sm font-bold leading-snug line-clamp-2 text-[#0B2545]">
             <Link
               href={`/go/${product.id}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:underline"
+              className="hover:text-[#D96B27] transition-colors"
             >
               {product.title}
             </Link>
           </h3>
 
           {product.description && (
-            <p className="text-[10px] tracking-normal opacity-60 line-clamp-2 leading-relaxed pt-1">
+            <p className="text-xs text-[#5C6479] line-clamp-2 leading-relaxed pt-1 font-normal">
               {product.description}
             </p>
           )}
@@ -80,14 +80,14 @@ export default function ProductCard({ product }: ProductCardProps) {
       </div>
 
       {/* Pricing & CTA Action */}
-      <div className="pt-4 mt-4 border-t border-black/10 flex items-center justify-between gap-2">
+      <div className="pt-4 mt-4 border-t border-[#ECECE8] flex items-center justify-between gap-3">
         <div className="flex items-baseline gap-2">
           {hasDiscount && (
-            <span className="text-[11px] tracking-wider line-through opacity-40">
+            <span className="text-xs line-through text-[#5C6479]/70">
               ${product.price.toFixed(2)}
             </span>
           )}
-          <span className="text-sm tracking-wider font-bold">
+          <span className="text-base font-extrabold text-[#0B2545]">
             ${displayPrice.toFixed(2)}
           </span>
         </div>
@@ -96,7 +96,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           href={`/go/${product.id}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center text-[10px] tracking-[0.2em] uppercase font-bold bg-black text-white px-3 py-1.5 hover:bg-neutral-800 transition-colors"
+          className="cta-btn !py-2 !px-4 !text-[11px] whitespace-nowrap"
         >
           VER OFERTA VIP →
         </Link>

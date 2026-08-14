@@ -132,20 +132,22 @@ function StoreContent() {
   return (
     <div className="max-w-7xl mx-auto px-6 md:px-12 pt-8">
       {/* Hero Section */}
-      <section className="py-12 md:py-20 border-b border-black mb-10 md:mb-14">
+      <section className="py-12 md:py-16 border-b border-[#ECECE8] mb-10">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
           <div>
-            <span className="text-[10px] tracking-[0.3em] uppercase opacity-40 block mb-2 font-courier">
-              Multi-Advertiser Catalog • 143K+ Verified Items
-            </span>
-            <h1 className="text-3xl md:text-5xl font-bold tracking-[0.2em] uppercase font-courier leading-tight">
-              Curated
-              <br />
-              Directory
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#D96B27]/10 text-[#D96B27] text-xs font-bold uppercase tracking-wider mb-3">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#D96B27]"></span>
+              Multi-Advertiser Catalog • Verified CJ Feeds
+            </div>
+            <h1 className="hero-title text-3xl md:text-5xl font-extrabold tracking-tight text-[#0B2545] leading-tight">
+              Curated Directory
             </h1>
+            <p className="text-sm text-[#5C6479] mt-2 max-w-xl">
+              Handpicked deals from premier verified global merchants. Direct affiliate attribution guaranteed.
+            </p>
           </div>
-          <div className="text-right">
-            <p className="text-[10px] md:text-xs tracking-[0.2em] uppercase opacity-50 max-w-sm leading-relaxed font-courier">
+          <div className="text-left md:text-right">
+            <p className="text-xs text-[#5C6479] font-medium leading-relaxed max-w-sm">
               Booking.com • AliExpress • Wondershare • Zinio • Ashampoo • Whokeys • Abracadabra NYC
             </p>
           </div>
@@ -172,11 +174,11 @@ function StoreContent() {
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
             {Array.from({ length: 24 }).map((_, i) => (
-              <div key={i} className="animate-pulse space-y-4 border border-black/10 p-4 bg-white">
-                <div className="aspect-[3/4] bg-black/[0.04]" />
-                <div className="h-2 bg-black/[0.06] w-1/3" />
-                <div className="h-3 bg-black/[0.06] w-3/4" />
-                <div className="h-3 bg-black/[0.06] w-1/4" />
+              <div key={i} className="animate-pulse space-y-4 rounded-xl border border-[#ECECE8] p-4 bg-white">
+                <div className="aspect-[3/4] bg-[#F3F3F0] rounded-lg" />
+                <div className="h-2.5 bg-[#ECECE8] w-1/3 rounded" />
+                <div className="h-4 bg-[#ECECE8] w-3/4 rounded" />
+                <div className="h-4 bg-[#ECECE8] w-1/4 rounded" />
               </div>
             ))}
           </div>
@@ -202,9 +204,9 @@ export default function HomePage() {
   return (
     <Suspense
       fallback={
-        <div className="max-w-7xl mx-auto px-6 md:px-12 py-24 text-center font-courier">
-          <p className="text-xs tracking-[0.3em] uppercase opacity-40 animate-pulse">
-            LOADING CATALOG...
+        <div className="max-w-7xl mx-auto px-6 md:px-12 py-24 text-center">
+          <p className="text-sm font-bold text-[#D96B27] tracking-wider uppercase animate-pulse">
+            Loading Supernova Catalog...
           </p>
         </div>
       }

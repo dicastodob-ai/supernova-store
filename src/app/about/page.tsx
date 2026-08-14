@@ -23,71 +23,75 @@ export default function AboutPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-6 md:px-12 pt-12 md:pt-20 pb-24 font-courier">
-      {/* Header section with generous breathing room */}
-      <div className="border-b border-black pb-8 mb-12">
-        <p className="text-[10px] tracking-[0.3em] uppercase opacity-40 mb-2">Editorial & Purpose</p>
-        <h1 className="text-2xl md:text-3xl font-bold tracking-[0.2em] uppercase">About Supernova</h1>
+    <div className="max-w-4xl mx-auto px-6 md:px-12 pt-12 md:pt-16 pb-24">
+      {/* Header section */}
+      <div className="border-b border-[#ECECE8] pb-8 mb-12">
+        <span className="text-xs font-bold tracking-wider uppercase text-[#D96B27] block mb-2">
+          Editorial & Purpose
+        </span>
+        <h1 className="hero-title text-3xl md:text-4xl font-extrabold tracking-tight text-[#0B2545]">
+          About Supernova
+        </h1>
       </div>
 
       {/* Main content */}
-      <div className="space-y-12 text-xs md:text-sm tracking-[0.08em] leading-relaxed">
-        <section className="space-y-4">
-          <h2 className="text-xs font-bold tracking-[0.2em] uppercase border-b border-black pb-2">
+      <div className="space-y-10 text-sm leading-relaxed text-[#2D3142]">
+        <section className="space-y-3 bg-white p-6 md:p-8 rounded-2xl border border-[#ECECE8] shadow-sm">
+          <h2 className="text-sm font-bold uppercase tracking-wide text-[#0B2545] border-b border-[#ECECE8] pb-2 font-heading">
             01 / Concept & Curation
           </h2>
-          <p>
+          <p className="text-[#5C6479]">
             Supernova Store is a curated minimalist storefront designed to eliminate visual noise and bring clarity to modern product discovery. We index high-grade electronics, functional design, literature, and lifestyle essentials from premier brands.
           </p>
         </section>
 
-        <section className="space-y-4">
-          <h2 className="text-xs font-bold tracking-[0.2em] uppercase border-b border-black pb-2">
+        <section className="space-y-3 bg-white p-6 md:p-8 rounded-2xl border border-[#ECECE8] shadow-sm">
+          <h2 className="text-sm font-bold uppercase tracking-wide text-[#0B2545] border-b border-[#ECECE8] pb-2 font-heading">
             02 / Affiliate Partnerships
           </h2>
-          <p>
-            All products and merchants featured in Supernova are curated and sourced exclusively through verified global affiliate partnerships with <strong>CJ Affiliate</strong>. When you click on a product link, you are redirected to the authorized merchant’s checkout with full buyer protections.
+          <p className="text-[#5C6479]">
+            All products and merchants featured in Supernova are curated and sourced exclusively through verified global affiliate partnerships with <strong className="text-[#0B2545]">CJ Affiliate (Commission Junction)</strong>. When you click on a product link, you are redirected to the authorized merchant’s checkout with official buyer protections.
           </p>
         </section>
 
-        <section className="space-y-4">
-          <h2 className="text-xs font-bold tracking-[0.2em] uppercase border-b border-black pb-2">
+        <section className="space-y-3 bg-white p-6 md:p-8 rounded-2xl border border-[#ECECE8] shadow-sm">
+          <h2 className="text-sm font-bold uppercase tracking-wide text-[#0B2545] border-b border-[#ECECE8] pb-2 font-heading">
             03 / Transparency & Disclosure
           </h2>
-          <p className="opacity-80">
+          <p className="text-[#5C6479]">
             Supernova may earn an affiliate commission when purchases are completed through our links at no additional cost to you. We only index items that adhere to our standards of design, quality, and technical integrity.
           </p>
         </section>
 
         {/* 04 / Contact Section */}
         <section className="space-y-6 pt-4">
-          <h2 className="text-xs font-bold tracking-[0.2em] uppercase border-b border-black pb-2">
-            04 / Contact & Inquiries
-          </h2>
-          <p className="opacity-80">
-            For brand partnerships, press inquiries, or curation questions, reach out directly or use the form below:
-          </p>
+          <div className="rounded-2xl border border-[#ECECE8] p-6 md:p-8 space-y-6 bg-white shadow-sm">
+            <h2 className="text-base font-bold uppercase tracking-wide text-[#0B2545] border-b border-[#ECECE8] pb-2 font-heading">
+              04 / Contact & Inquiries
+            </h2>
+            <p className="text-xs text-[#5C6479]">
+              For brand partnerships, press inquiries, or curation questions, reach out directly or use the form below:
+            </p>
 
-          <div className="border border-black p-6 md:p-8 space-y-6 bg-white">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-black/10 gap-2">
-              <span className="text-[10px] tracking-[0.2em] uppercase opacity-50">Direct Email:</span>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#ECECE8] gap-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#5C6479]">Direct Email:</span>
               <a
                 href="mailto:anne.neumann@humancentric.online"
-                className="text-xs font-bold tracking-[0.1em] hover:underline underline-offset-4"
+                className="text-xs font-bold text-[#D96B27] hover:underline"
               >
                 anne.neumann@humancentric.online
               </a>
             </div>
 
             {submitted ? (
-              <div className="bg-black text-white p-4 text-xs tracking-[0.15em] uppercase text-center space-y-2">
-                <p className="font-bold">Message Initiated</p>
-                <p className="text-[10px] opacity-80">
+              <div className="bg-[#0B2545] text-white p-6 rounded-xl text-center space-y-2">
+                <p className="font-bold text-sm">Message Initiated</p>
+                <p className="text-xs text-white/80">
                   Your mail client has been opened to send your inquiry to anne.neumann@humancentric.online.
                 </p>
                 <button
                   onClick={() => setSubmitted(false)}
-                  className="mt-2 text-[10px] underline uppercase tracking-wider"
+                  className="mt-3 text-xs font-bold underline text-[#D96B27] cursor-pointer"
                 >
                   Send another message
                 </button>
@@ -95,7 +99,7 @@ export default function AboutPage() {
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label htmlFor="name" className="block text-[10px] tracking-[0.2em] uppercase opacity-60 mb-1">
+                  <label htmlFor="name" className="block text-xs font-bold uppercase tracking-wider text-[#5C6479] mb-1">
                     Your Name
                   </label>
                   <input
@@ -104,13 +108,13 @@ export default function AboutPage() {
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="ENTER YOUR NAME"
-                    className="w-full bg-white text-black text-xs uppercase tracking-wider py-2.5 px-3 border border-black focus:outline-none focus:ring-1 focus:ring-black placeholder:opacity-30"
+                    placeholder="Enter your name"
+                    className="w-full bg-[#F9F9F8] text-[#2D3142] text-xs py-3 px-4 rounded-xl border border-[#ECECE8] focus:outline-none focus:border-[#D96B27] focus:ring-2 focus:ring-[#D96B27]/20 placeholder:text-[#5C6479]/40"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="email" className="block text-[10px] tracking-[0.2em] uppercase opacity-60 mb-1">
+                  <label htmlFor="email" className="block text-xs font-bold uppercase tracking-wider text-[#5C6479] mb-1">
                     Email Address
                   </label>
                   <input
@@ -119,13 +123,13 @@ export default function AboutPage() {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="YOUR.EMAIL@DOMAIN.COM"
-                    className="w-full bg-white text-black text-xs uppercase tracking-wider py-2.5 px-3 border border-black focus:outline-none focus:ring-1 focus:ring-black placeholder:opacity-30"
+                    placeholder="your.email@domain.com"
+                    className="w-full bg-[#F9F9F8] text-[#2D3142] text-xs py-3 px-4 rounded-xl border border-[#ECECE8] focus:outline-none focus:border-[#D96B27] focus:ring-2 focus:ring-[#D96B27]/20 placeholder:text-[#5C6479]/40"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="message" className="block text-[10px] tracking-[0.2em] uppercase opacity-60 mb-1">
+                  <label htmlFor="message" className="block text-xs font-bold uppercase tracking-wider text-[#5C6479] mb-1">
                     Message / Inquiry
                   </label>
                   <textarea
@@ -134,14 +138,14 @@ export default function AboutPage() {
                     rows={4}
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
-                    placeholder="WRITE YOUR MESSAGE HERE..."
-                    className="w-full bg-white text-black text-xs uppercase tracking-wider py-2.5 px-3 border border-black focus:outline-none focus:ring-1 focus:ring-black placeholder:opacity-30 resize-y"
+                    placeholder="Write your message here..."
+                    className="w-full bg-[#F9F9F8] text-[#2D3142] text-xs py-3 px-4 rounded-xl border border-[#ECECE8] focus:outline-none focus:border-[#D96B27] focus:ring-2 focus:ring-[#D96B27]/20 placeholder:text-[#5C6479]/40 resize-y"
                   />
                 </div>
 
                 <button
                   type="submit"
-                  className="w-full bg-black text-white text-xs tracking-[0.25em] uppercase py-3 border border-black hover:bg-white hover:text-black transition-colors font-bold"
+                  className="button-primary w-full !py-3.5 !text-xs tracking-wider"
                 >
                   Send Inquiry →
                 </button>
@@ -150,10 +154,10 @@ export default function AboutPage() {
           </div>
         </section>
 
-        <div className="pt-8 border-t border-black/10 flex items-center justify-between">
+        <div className="pt-6 border-t border-[#ECECE8] flex items-center justify-between">
           <Link
             href="/"
-            className="inline-block bg-black text-white text-xs tracking-[0.2em] uppercase px-6 py-3 border border-black hover:bg-white hover:text-black transition-colors"
+            className="button-primary !bg-[#0B2545] hover:!bg-[#07172B] !text-xs !py-3 !px-6"
           >
             ← Return to Store
           </Link>

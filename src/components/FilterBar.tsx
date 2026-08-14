@@ -28,22 +28,22 @@ export default function FilterBar({
   totalProducts,
 }: FilterBarProps) {
   return (
-    <div className="space-y-6 mb-12 font-courier">
+    <div className="space-y-6 mb-10">
       {/* Search & Sort Controls */}
-      <div className="flex flex-col md:flex-row gap-4 justify-between items-stretch md:items-center pb-6 border-b border-black">
+      <div className="flex flex-col md:flex-row gap-4 justify-between items-stretch md:items-center pb-6 border-b border-[#ECECE8]">
         {/* Instant Search Box */}
         <div className="relative flex-1 max-w-md">
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="SEARCH CATALOG (e.g. SONY, BOUTIQUE, FILMORA)..."
-            className="w-full bg-white text-black text-xs uppercase tracking-wider py-2.5 px-3 border border-black placeholder:opacity-30 focus:outline-none focus:ring-1 focus:ring-black"
+            placeholder="Search catalog (e.g. Booking, AliExpress, Wondershare)..."
+            className="w-full bg-white text-[#2D3142] text-xs py-3 px-4 rounded-full border border-[#ECECE8] placeholder:text-[#5C6479]/50 focus:outline-none focus:border-[#D96B27] focus:ring-2 focus:ring-[#D96B27]/20 transition-all shadow-sm"
           />
           {searchQuery && (
             <button
               onClick={() => onSearchChange('')}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs uppercase opacity-40 hover:opacity-100"
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-[#5C6479] hover:text-[#0B2545]"
               title="Clear search"
             >
               ✕
@@ -54,18 +54,18 @@ export default function FilterBar({
         {/* Network Presets & Sort Filters */}
         <div className="flex flex-wrap items-center gap-3">
           {/* NET Presets Filter */}
-          <div className="flex items-center gap-1 border border-black p-0.5">
-            <span className="text-[9px] uppercase tracking-widest px-2 opacity-50 select-none">
+          <div className="flex items-center gap-1 bg-white border border-[#ECECE8] p-1 rounded-full shadow-sm">
+            <span className="text-[10px] uppercase font-bold tracking-wider px-2.5 text-[#5C6479] select-none">
               NET:
             </span>
             {NET_PRESETS.map((preset) => (
               <button
                 key={preset.id}
                 onClick={() => onNetworkChange(preset.id)}
-                className={`text-[10px] tracking-wider uppercase px-2.5 py-1 transition-colors ${
+                className={`text-[11px] font-bold tracking-wide px-3 py-1.5 rounded-full transition-all ${
                   activeNetwork.toLowerCase() === preset.id.toLowerCase()
-                    ? 'bg-black text-white'
-                    : 'bg-transparent text-black hover:opacity-60'
+                    ? 'bg-[#0B2545] text-white shadow-sm'
+                    : 'bg-transparent text-[#2D3142] hover:text-[#D96B27]'
                 }`}
               >
                 {preset.label}
@@ -74,8 +74,8 @@ export default function FilterBar({
           </div>
 
           {/* Sort Dropdown */}
-          <div className="flex items-center gap-1 border border-black p-0.5">
-            <span className="text-[9px] uppercase tracking-widest px-2 opacity-50 select-none">
+          <div className="flex items-center gap-1 bg-white border border-[#ECECE8] p-1 rounded-full shadow-sm">
+            <span className="text-[10px] uppercase font-bold tracking-wider px-2.5 text-[#5C6479] select-none">
               SORT:
             </span>
             <select
@@ -83,7 +83,7 @@ export default function FilterBar({
               onChange={(e) =>
                 onSortChange(e.target.value as 'latest' | 'price_asc' | 'price_desc')
               }
-              className="bg-white text-black text-[10px] uppercase tracking-wider py-1 px-2 border-none focus:outline-none cursor-pointer"
+              className="bg-transparent text-[#2D3142] text-[11px] font-semibold py-1.5 px-3 border-none focus:outline-none cursor-pointer rounded-full"
             >
               <option value="latest">Latest</option>
               <option value="price_asc">Price: Low → High</option>
@@ -95,17 +95,17 @@ export default function FilterBar({
 
       {/* Curated Categories Bar */}
       <div className="flex flex-wrap gap-2 items-center">
-        <span className="text-[9px] uppercase tracking-widest opacity-40 mr-1 select-none">
+        <span className="text-[10px] uppercase font-bold tracking-wider text-[#5C6479] mr-1 select-none">
           CATEGORIES:
         </span>
         {CATEGORIES.map((cat) => (
           <button
             key={cat.id}
             onClick={() => onCategoryChange(cat.id)}
-            className={`text-[10px] tracking-[0.15em] uppercase px-3 py-1.5 border transition-all duration-150 ${
+            className={`text-[11px] font-bold tracking-wide px-3.5 py-1.5 rounded-full transition-all duration-150 ${
               activeCategory.toLowerCase() === cat.id.toLowerCase()
-                ? 'bg-black text-white border-black font-bold'
-                : 'bg-transparent text-black border-transparent hover:border-black hover:line-through'
+                ? 'bg-[#D96B27] text-white shadow-sm'
+                : 'bg-white text-[#2D3142] border border-[#ECECE8] hover:border-[#D96B27] hover:text-[#D96B27]'
             }`}
           >
             {cat.label}
@@ -114,10 +114,10 @@ export default function FilterBar({
       </div>
 
       {/* Catalog Status Bar */}
-      <div className="flex justify-between items-center text-[10px] uppercase tracking-widest opacity-40 pt-2">
+      <div className="flex justify-between items-center text-xs text-[#5C6479] pt-1">
         <span>
           Showing 24 per page &nbsp;•&nbsp;{' '}
-          {totalProducts.toLocaleString()} active items indexed
+          <strong className="text-[#0B2545]">{totalProducts.toLocaleString()}</strong> verified products
         </span>
       </div>
     </div>

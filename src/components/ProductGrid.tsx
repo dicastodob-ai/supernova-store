@@ -9,20 +9,20 @@ interface ProductGridProps {
 export default function ProductGrid({ products, onResetFilters }: ProductGridProps) {
   if (products.length === 0) {
     return (
-      <div className="text-center py-24 border border-dashed border-black/20 my-8 p-8 font-courier">
-        <span className="text-[10px] tracking-[0.3em] uppercase opacity-40 block mb-2">
-          NO MATCHES FOUND
+      <div className="text-center py-20 rounded-2xl border border-dashed border-[#ECECE8] bg-white my-8 p-8 shadow-sm">
+        <span className="text-xs font-bold tracking-wider uppercase text-[#D96B27] block mb-2">
+          No matches found
         </span>
-        <h3 className="text-sm font-bold tracking-[0.2em] uppercase mb-4">
+        <h3 className="text-lg font-bold text-[#0B2545] mb-2 font-heading">
           No products match the selected criteria
         </h3>
-        <p className="text-xs tracking-wider opacity-60 max-w-md mx-auto mb-6">
-          Try selecting another category, adjusting your price filters, or clearing your search term.
+        <p className="text-xs text-[#5C6479] max-w-md mx-auto mb-6">
+          Try selecting another category, adjusting your network presets, or clearing your search term.
         </p>
         {onResetFilters && (
           <button
             onClick={onResetFilters}
-            className="inline-block text-xs font-bold tracking-[0.2em] uppercase bg-black text-white px-6 py-2.5 hover:bg-neutral-800 transition-colors"
+            className="button-primary !text-xs !py-2.5 !px-6"
           >
             RESET ALL FILTERS →
           </button>
