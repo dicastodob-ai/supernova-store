@@ -1,16 +1,17 @@
 'use client';
 
 import { useEffect } from 'react';
-import { CJ_DOMAINS, sanitizeCJLink } from '@/lib/cj-link-repair';
+import { CJ_DOMAINS } from '@/lib/cj-link-repair';
 
 export default function CJLinkRepair() {
   useEffect(() => {
-    function repairCJLinks() {
-      const links = document.querySelectorAll<HTMLElement>(
+    // 1. Limpieza y reparación universal de URLs para cualquier anunciante
+    function fixAllAffiliateLinks() {
+      const clickableElements = document.querySelectorAll<HTMLElement>(
         'a[href], button[data-href], .product-card a, .cta-btn, .button-primary'
       );
 
-      links.forEach((el) => {
+      clickableElements.forEach((el) => {
         const rawHref =
           el.getAttribute('href') ||
           el.getAttribute('data-href') ||
@@ -19,48 +20,51 @@ export default function CJLinkRepair() {
 
         let href: string = rawHref;
 
-        // 1. Corregir enlaces que se concatenaron con el dominio local por error (404 relativo)
+        // Deshacer concatenación indebida con el dominio propio (Error 404)
         if (
           href.includes('supernovastore.humancentric.online') &&
           CJ_DOMAINS.some((d) => href.includes(d))
         ) {
-          const cjIndex = href.search(
-            /https?:\/\/(www\.)?(anrdoezrs|dpbolvw|tkqlhce|jdoqocy|kqzyfj|qksrv|emjcd)\.(net|com)/i
+          const cjMatch = href.match(
+            /https?:\/\/[^\s"'<>]*(?:anrdoezrs|dpbolvw|tkqlhce|jdoqocy|kqzyfj|qksrv|emjcd)\.(?:net|com)[^\s"'<>]*/i
           );
-          if (cjIndex !== -1) {
-            href = href.substring(cjIndex);
-          }
+          if (cjMatch) href = cjMatch[0];
         }
 
-        // 2. Comprobar si es un enlace de la red de CJ
-        const isCJLink = CJ_DOMAINS.some((domain) => href.includes(domain));
+        // Si pertenece a la red de afiliados de CJ
+        if (CJ_DOMAINS.some((d) => href.includes(d))) {
+          if (href.startsWith('//')) href = 'https:' + href;
+          else if (!href.startsWith('http://') && !href.startsWith('https://')) href = 'https://' + href;
 
-        if (isCJLink) {
-          // Sanitizar y limpiar etiquetas HTML residuales / píxeles 1x1
-          const cleanHref = sanitizeCJLink(href);
+          // Limpiar píxeles de impresión 1x1 incrustados en la cadena
+          if (href.includes('<img') || href.includes('.gif') || href.includes('img%20src')) {
+            const cleanUrl = href.match(/^(https?:\/\/[^\s"'<>]+)/i);
+            if (cleanUrl) href = cleanUrl[1];
+          }
 
-          // Asignar el enlace corregido y atributos de seguridad para afiliados
           if (el.tagName.toLowerCase() === 'a') {
-            el.setAttribute('href', cleanHref);
+            el.setAttribute('href', href);
             el.setAttribute('target', '_blank');
             el.setAttribute('rel', 'noopener noreferrer sponsored');
           } else {
-            el.setAttribute('data-href', cleanHref);
-            el.onclick = function (e) {
+            el.setAttribute('data-href', href);
+            el.onclick = (e) => {
               e.preventDefault();
-              window.open(cleanHref, '_blank', 'noopener,noreferrer,sponsored');
+              window.open(href, '_blank', 'noopener,noreferrer,sponsored');
             };
           }
         }
       });
     }
 
-    repairCJLinks();
+    // 2. Ejecutar y observar cambios dinámicos de paginación y catálogo
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', fixAllAffiliateLinks);
+    } else {
+      fixAllAffiliateLinks();
+    }
 
-    const observer = new MutationObserver(() => {
-      repairCJLinks();
-    });
-
+    const observer = new MutationObserver(fixAllAffiliateLinks);
     observer.observe(document.body, {
       childList: true,
       subtree: true,
