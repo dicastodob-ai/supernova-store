@@ -62,22 +62,23 @@ async function validateCatalogLinks() {
       continue;
     }
 
-    const hasCjHost = CJ_HOSTS.some((h) => url.includes(h));
-    if (!hasCjHost) {
-      console.error(`   ❌ Host de CJ no reconocido en: ${p.id} -> ${url}`);
+    const hasSid = /[?&]sid=supernova/i.test(url) || /\/sid\/supernova/i.test(url);
+    if (!hasSid) {
+      console.error(`   ❌ Parámetro sid=supernova faltante en: ${p.id} -> ${url}`);
       errors++;
       continue;
     }
 
-    if (!url.includes(CJ_CID) || !url.includes(CJ_SUBID)) {
-      console.error(`   ❌ Parámetros de atribución faltantes (CID/SubID) en: ${p.id} -> ${url}`);
+    const isBlacklisted = /booking|aliexpress/i.test(p.merchant) || /booking|aliexpress/i.test(url) || /booking|aliexpress/i.test(p.title);
+    if (isBlacklisted) {
+      console.error(`   ❌ Anunciante en lista negra detectado: ${p.merchant} -> ${p.id}`);
       errors++;
       continue;
     }
   }
 
   if (errors === 0) {
-    console.log(`   ✅ 500/500 muestras auditadas cumplen 100% con los estándares oficiales de tracking de CJ.`);
+    console.log(`   ✅ 500/500 muestras auditadas cumplen 100% con los estándares de tracking original y sid=supernova.`);
   } else {
     throw new Error(`Se encontraron ${errors} errores en la muestra de la base de datos.`);
   }
@@ -96,7 +97,7 @@ async function validateCatalogLinks() {
     }
 
     if (jsonErrors === 0) {
-      console.log(`   ✅ Todos los ${items.length} items de data.json tienen URLs salientes válidas de CJ.`);
+      console.log(`   ✅ Todos los ${items.length} items de data.json tienen URLs salientes válidas.`);
     } else {
       throw new Error(`Se encontraron ${jsonErrors} errores en data.json.`);
     }
@@ -105,11 +106,11 @@ async function validateCatalogLinks() {
   db.close();
 
   console.log('\n===============================================================');
-  console.log('🎉 AUDITORÍA DE ATRIBUCIÓN CJ SUPERADA AL 100%');
-  console.log('- Publisher CID: ' + CJ_CID);
+  console.log('🎉 AUDITORÍA DE ATRIBUCIÓN Y TRACKING SUPERADA AL 100%');
   console.log('- SubID:         ' + CJ_SUBID);
   console.log('- Enlaces rotos: 0');
   console.log('- Rutas 404:     0');
+  console.log('- Exclusiones:   Booking.com / AliExpress purgados 100%');
   console.log('===============================================================\n');
 }
 

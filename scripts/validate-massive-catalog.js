@@ -54,75 +54,38 @@ function isBlacklisted(merchant = '', url = '', title = '') {
 }
 
 /**
- * Normaliza y construye la URL de tracking de CJ garantizada hacia el comercio externo
+ * Preserva fielmente la URL original del feed (BUYURL / PRODUCTURL)
+ * - Utiliza estrictamente la URL original del campo BUYURL / PRODUCTURL / affiliate_url del CSV.
+ * - Concatena sid=supernova respetando la sintaxis (? o &) sin alterar el dominio ni el AID/PID del anunciante.
+ * - NO sobreescribe con plantillas genéricas fijas.
  */
-function normalizeCJUrl(rawUrl, merchant = '', id = '') {
-  const mKey = (merchant || '').toLowerCase().replace(/[^a-z0-9]/g, '');
-
+function preserveOriginalCjUrl(rawUrl, merchant = '', id = '') {
   if (!rawUrl || typeof rawUrl !== 'string') {
+    const mKey = (merchant || '').toLowerCase().replace(/[^a-z0-9]/g, '');
     if (mKey && MERCHANT_FALLBACKS[mKey]) {
       return MERCHANT_FALLBACKS[mKey];
     }
     const slug = mKey || 'store';
-    const cleanId = id || 'deal';
-    return `https://www.anrdoezrs.net/links/${CJ_CID}/type/dlg/sid/${CJ_SUBID}/https://${slug}.com/product/${cleanId}`;
+    return `https://${slug}.com/?sid=${CJ_SUBID}`;
   }
 
   let url = rawUrl.trim();
 
-  // Deshacer rutas internas del frontend y convertirlas al comercio externo
-  if (url.includes('supernovastore.humancentric.online/cj/') || url.includes('/cj/')) {
-    if (mKey && MERCHANT_FALLBACKS[mKey]) {
-      return MERCHANT_FALLBACKS[mKey];
-    }
-    const slug = mKey || 'store';
-    const cleanId = id || 'deal';
-    return `https://www.anrdoezrs.net/links/${CJ_CID}/type/dlg/sid/${CJ_SUBID}/https://${slug}.com/product/${cleanId}`;
-  }
+  // Deshacer comillas o etiquetas residuales
+  url = url.replace(/^[<"']+|[>"']+$/g, '');
 
-  if (url.includes('supernovastore.humancentric.online/affiliate/')) {
-    if (mKey && MERCHANT_FALLBACKS[mKey]) {
-      return MERCHANT_FALLBACKS[mKey];
-    }
-    const slug = mKey || 'store';
-    return `https://www.anrdoezrs.net/links/${CJ_CID}/type/dlg/sid/${CJ_SUBID}/https://${slug}.com/`;
-  }
-
-  // Asegurar esquema HTTPS
+  // Asegurar protocolo HTTPS
   if (url.startsWith('//')) {
     url = 'https:' + url;
   } else if (!url.startsWith('http://') && !url.startsWith('https://')) {
     url = 'https://' + url;
   }
 
-  // Manejar muestras y enlaces sin CID oficial
-  if (url.includes('click-cj-sample') || url.includes('sample-') || !url.includes(CJ_CID) || !url.includes(CJ_SUBID)) {
-    if (mKey && MERCHANT_FALLBACKS[mKey]) {
-      return MERCHANT_FALLBACKS[mKey];
-    }
-    try {
-      const uObj = new URL(url);
-      const targetParam = uObj.searchParams.get('url');
-      if (targetParam && targetParam.startsWith('http')) {
-        return `https://www.anrdoezrs.net/links/${CJ_CID}/type/dlg/sid/${CJ_SUBID}/${decodeURIComponent(targetParam)}`;
-      }
-    } catch {}
-    const slug = mKey || 'store';
-    const cleanId = id || 'deal';
-    return `https://www.anrdoezrs.net/links/${CJ_CID}/type/dlg/sid/${CJ_SUBID}/https://${slug}.com/product/${cleanId}`;
-  }
-
-  // Envolver en CJ Gateway si es URL directa del anunciante
-  if (
-    !url.includes('anrdoezrs.net') &&
-    !url.includes('tkqlhce.com') &&
-    !url.includes('dpbolvw.net') &&
-    !url.includes('jdoqocy.com') &&
-    !url.includes('kqzyfj.com') &&
-    !url.includes('qksrv.net') &&
-    !url.includes('emjcd.com')
-  ) {
-    url = `https://www.anrdoezrs.net/links/${CJ_CID}/type/dlg/sid/${CJ_SUBID}/${url}`;
+  // Concatena sid=supernova respetando la sintaxis del enlace original sin alterar dominio ni AID/PID
+  const hasSid = /[?&]sid=/i.test(url) || /\/sid\//i.test(url);
+  if (!hasSid) {
+    const separator = url.includes('?') ? '&' : '?';
+    url = `${url}${separator}sid=${CJ_SUBID}`;
   }
 
   return url;
@@ -286,7 +249,7 @@ async function runMassiveCatalogPipeline() {
           salePrice: item.salePrice ? parseFloat(item.salePrice) : (item.sale_price ? parseFloat(item.sale_price) : null),
           merchant,
           category: item.category || 'tech',
-          affiliateUrl: normalizeCJUrl(item.affiliateUrl || item.product_url, merchant, id),
+          affiliateUrl: preserveOriginalCjUrl(item.affiliateUrl || item.product_url, merchant, id),
           imageUrl: item.imageUrl || item.image_url || FALLBACK_IMAGE,
           tags: item.tags || `cj,${item.category || 'lifestyle'}`,
         };
@@ -323,16 +286,16 @@ async function runMassiveCatalogPipeline() {
     if (lineCount === 1) {
       const headers = parseCsvLine(line).map((h) => h.toLowerCase().replace(/[^a-z0-9]/g, ''));
       colMap = {
-        id: headers.findIndex((h) => h.includes('id') || h.includes('sku')),
+        id: headers.findIndex((h) => h === 'id' || h === 'sku' || h.includes('prodid') || h.includes('itemid')),
         title: headers.findIndex((h) => h.includes('title') || h.includes('name')),
         description: headers.findIndex((h) => h.includes('desc')),
-        price: headers.findIndex((h) => h === 'price' || h.includes('retail')),
+        price: headers.findIndex((h) => h === 'price' || h.includes('retail') || h.includes('regular')),
         salePrice: headers.findIndex((h) => h.includes('sale')),
         category: headers.findIndex((h) => h.includes('cat')),
-        affiliateUrl: headers.findIndex((h) => h.includes('affiliate') || h.includes('url') || h.includes('link')),
-        imageUrl: headers.findIndex((h) => h.includes('image') || h.includes('photo')),
-        merchant: headers.findIndex((h) => h.includes('merchant') || h.includes('brand')),
-        tags: headers.findIndex((h) => h.includes('tag')),
+        affiliateUrl: headers.findIndex((h) => h.includes('buyurl') || h.includes('producturl') || h.includes('clickurl') || h.includes('affiliate') || h.includes('url') || h.includes('link')),
+        imageUrl: headers.findIndex((h) => h.includes('image') || h.includes('photo') || h.includes('img')),
+        merchant: headers.findIndex((h) => h.includes('merchant') || h.includes('brand') || h.includes('advertiser')),
+        tags: headers.findIndex((h) => h.includes('tag') || h.includes('keyword')),
       };
       continue;
     }
@@ -368,7 +331,7 @@ async function runMassiveCatalogPipeline() {
       }
     }
 
-    const affiliateUrl = normalizeCJUrl(rawAffUrl, merchant, id);
+    const affiliateUrl = preserveOriginalCjUrl(rawAffUrl, merchant, id);
     const imageUrl = (colMap.imageUrl !== -1 && cols[colMap.imageUrl]) ? cols[colMap.imageUrl] : FALLBACK_IMAGE;
     const tags = (colMap.tags !== -1 && cols[colMap.tags]) ? cols[colMap.tags] : `${category},${merchant.toLowerCase()}`;
 
