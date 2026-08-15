@@ -11,7 +11,8 @@ export function ProductCard({ product }: { product: Product }) {
     (product as unknown as { affiliateUrl?: string }).affiliateUrl ||
     product.affiliate?.url ||
     (product as unknown as { product_url?: string }).product_url ||
-    `https://www.anrdoezrs.net/links/7999396/type/dlg/sid/supernova/https://${(product.merchant || 'store').toLowerCase().replace(/[^a-z0-9]/g, '')}.com/product/${product.id}`;
+    (product as unknown as { buy_url?: string }).buy_url ||
+    `https://${(product.merchant || 'store').toLowerCase().replace(/[^a-z0-9]/g, '')}.com/product/${product.id}`;
 
   const cjUrl = sanitizeAffiliateUrl(rawAffiliateUrl, product.merchant, product.id);
 

@@ -33,12 +33,12 @@ const BLACKLISTED_MERCHANTS = ['booking', 'aliexpress'];
 
 // Fallbacks de anunciantes oficiales estables
 const MERCHANT_FALLBACKS = {
-  'zinio': 'https://www.anrdoezrs.net/links/7999396/type/dlg/sid/supernova/https://www.zinio.com/',
-  'wondershare': 'https://www.anrdoezrs.net/links/7999396/type/dlg/sid/supernova/https://www.wondershare.com/',
-  'ashampoo': 'https://www.anrdoezrs.net/links/7999396/type/dlg/sid/supernova/https://www.ashampoo.com/',
-  'whokeys': 'https://www.anrdoezrs.net/links/7999396/type/dlg/sid/supernova/https://www.whokeys.com/',
-  'abracadabra': 'https://www.anrdoezrs.net/links/7999396/type/dlg/sid/supernova/https://abracadabranyc.com/',
-  'abracadabranyc': 'https://www.anrdoezrs.net/links/7999396/type/dlg/sid/supernova/https://abracadabranyc.com/',
+  'zinio': 'https://www.zinio.com/',
+  'wondershare': 'https://www.wondershare.com/',
+  'ashampoo': 'https://www.ashampoo.com/',
+  'whokeys': 'https://www.whokeys.com/',
+  'abracadabra': 'https://abracadabranyc.com/',
+  'abracadabranyc': 'https://abracadabranyc.com/',
 };
 
 /**
@@ -57,7 +57,7 @@ function isBlacklisted(merchant = '', url = '', title = '') {
  * Preserva fielmente la URL original del feed (BUYURL / PRODUCTURL)
  * - Utiliza estrictamente la URL original del campo BUYURL / PRODUCTURL / affiliate_url del CSV.
  * - Concatena sid=supernova respetando la sintaxis (? o &) sin alterar el dominio ni el AID/PID del anunciante.
- * - NO sobreescribe con plantillas genéricas fijas.
+ * - NO sobreescribe con plantillas genéricas fijas ni prefijos de anrdoezrs.net.
  */
 function preserveOriginalCjUrl(rawUrl, merchant = '', id = '') {
   if (!rawUrl || typeof rawUrl !== 'string') {
@@ -73,6 +73,14 @@ function preserveOriginalCjUrl(rawUrl, merchant = '', id = '') {
 
   // Deshacer comillas o etiquetas residuales
   url = url.replace(/^[<"']+|[>"']+$/g, '');
+
+  // Deshacer cualquier envoltorio artificial previo 7999396/type/dlg
+  if (url.includes('/links/7999396/type/dlg/')) {
+    const match = url.match(/(?:anrdoezrs|dpbolvw|tkqlhce|jdoqocy|kqzyfj|qksrv|emjcd)\.(?:net|com)\/links\/7999396\/type\/dlg\/[^\/]*\/(https?:\/\/.+)/i);
+    if (match && match[1]) {
+      url = match[1];
+    }
+  }
 
   // Asegurar protocolo HTTPS
   if (url.startsWith('//')) {

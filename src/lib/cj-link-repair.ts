@@ -24,12 +24,12 @@ export const CJ_DOMAINS = CJ_TRACKING_HOSTS;
  * Fallbacks verificados por anunciante ante deep-links rotos o páginas 404
  */
 export const MERCHANT_CJ_FALLBACKS: Record<string, string> = {
-  'zinio': 'https://www.anrdoezrs.net/links/7999396/type/dlg/sid/supernova/https://www.zinio.com/',
-  'wondershare': 'https://www.anrdoezrs.net/links/7999396/type/dlg/sid/supernova/https://www.wondershare.com/',
-  'ashampoo': 'https://www.anrdoezrs.net/links/7999396/type/dlg/sid/supernova/https://www.ashampoo.com/',
-  'whokeys': 'https://www.anrdoezrs.net/links/7999396/type/dlg/sid/supernova/https://www.whokeys.com/',
-  'abracadabra': 'https://www.anrdoezrs.net/links/7999396/type/dlg/sid/supernova/https://abracadabranyc.com/',
-  'abracadabra nyc': 'https://www.anrdoezrs.net/links/7999396/type/dlg/sid/supernova/https://abracadabranyc.com/',
+  'zinio': 'https://www.zinio.com/',
+  'wondershare': 'https://www.wondershare.com/',
+  'ashampoo': 'https://www.ashampoo.com/',
+  'whokeys': 'https://www.whokeys.com/',
+  'abracadabra': 'https://abracadabranyc.com/',
+  'abracadabra nyc': 'https://abracadabranyc.com/',
 };
 
 /**
