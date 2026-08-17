@@ -23,18 +23,19 @@ export type ProductCategory =
 export interface CategoryOption {
   id: string;
   label: string;
+  slug?: string;
 }
 
 /**
  * Configuración de categorías frontend limpias y estables
  */
 export const CATEGORIES: CategoryOption[] = [
-  { id: 'all', label: 'All Categories' },
-  { id: 'tech', label: 'Tech & Software' },
-  { id: 'electronics', label: 'Electronics & Audio' },
-  { id: 'media', label: 'Magazines & Press' },
-  { id: 'lifestyle', label: 'Home & Lifestyle' },
-  { id: 'fashion', label: 'Fashion & Apparel' },
+  { id: 'all', label: 'Todos los Productos', slug: 'all' },
+  { id: 'software', label: 'Software & Herramientas', slug: 'software' },
+  { id: 'magazines', label: 'Revistas & Prensa', slug: 'magazines' },
+  { id: 'tech', label: 'Tecnología & Accesorios', slug: 'tech' },
+  { id: 'electronics', label: 'Electrónica & Gadgets', slug: 'electronics' },
+  { id: 'audio', label: 'Audio & Sonido', slug: 'audio' },
 ];
 
 export interface NetPresetOption {

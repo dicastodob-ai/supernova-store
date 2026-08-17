@@ -175,24 +175,25 @@ export function queryProducts(
 
     if (filters?.category && filters.category !== ('all' as ProductCategory)) {
       const cat = String(filters.category).toLowerCase();
-      if (cat === 'tech') {
-        whereClauses.push("(category = 'electronics' OR tags LIKE '%software%' OR tags LIKE '%tech%')");
+      if (cat === 'software') {
+        whereClauses.push("(category IN ('software', 'electronics', 'tech') OR tags LIKE '%software%' OR tags LIKE '%tool%' OR LOWER(merchant) IN ('wondershare', 'ashampoo', 'whokeys') OR title LIKE '%software%' OR description LIKE '%software%')");
+        hasFilters = true;
+      } else if (cat === 'magazines' || cat === 'media') {
+        whereClauses.push("(category IN ('books', 'media', 'magazines') OR LOWER(merchant) = 'zinio' OR tags LIKE '%magazines%' OR tags LIKE '%press%' OR title LIKE '%magazine%' OR description LIKE '%magazine%')");
+        hasFilters = true;
+      } else if (cat === 'tech') {
+        whereClauses.push("(category IN ('tech', 'electronics') OR tags LIKE '%tech%' OR tags LIKE '%gadgets%' OR tags LIKE '%accessories%' OR tags LIKE '%pc%' OR title LIKE '%tech%' OR title LIKE '%cable%' OR title LIKE '%hub%')");
         hasFilters = true;
       } else if (cat === 'electronics') {
-        whereClauses.push("(category = 'electronics' OR tags LIKE '%audio%' OR tags LIKE '%gadgets%')");
+        whereClauses.push("(category IN ('electronics', 'tech') OR tags LIKE '%electronics%' OR tags LIKE '%gadgets%' OR title LIKE '%electronic%')");
         hasFilters = true;
-      } else if (cat === 'media') {
-        whereClauses.push("(category = 'books' OR LOWER(merchant) = 'zinio' OR tags LIKE '%magazines%' OR tags LIKE '%press%')");
-        hasFilters = true;
-      } else if (cat === 'lifestyle') {
-        whereClauses.push("(category IN ('fashion', 'accessories', 'beauty', 'sports', 'home'))");
-        hasFilters = true;
-      } else if (cat === 'fashion') {
-        whereClauses.push("(category IN ('fashion', 'accessories'))");
+      } else if (cat === 'audio') {
+        whereClauses.push("(category IN ('audio', 'electronics') OR tags LIKE '%audio%' OR tags LIKE '%sound%' OR tags LIKE '%headphone%' OR tags LIKE '%speaker%' OR title LIKE '%audio%' OR title LIKE '%sound%' OR title LIKE '%headphone%' OR title LIKE '%speaker%' OR description LIKE '%audio%')");
         hasFilters = true;
       } else {
-        whereClauses.push('category = @category');
+        whereClauses.push('(category = @category OR tags LIKE @categoryLike)');
         params.category = filters.category;
+        params.categoryLike = `%${filters.category}%`;
         hasFilters = true;
       }
     }

@@ -1,6 +1,7 @@
 'use client';
 
-import { CATEGORIES, NET_PRESETS } from '@/types/product';
+import { CATEGORIES } from '@/data/categories';
+import { NET_PRESETS } from '@/types/product';
 
 interface FilterBarProps {
   categories?: string[];

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { CATEGORIES } from '@/data/categories';
 
 export default function Header() {
   return (
@@ -8,40 +9,19 @@ export default function Header() {
           <span className="w-2.5 h-2.5 rounded-full bg-[#D96B27] inline-block"></span>
           SUPERNOVA
         </Link>
-        <nav className="flex items-center gap-4 sm:gap-6 md:gap-8">
-          <Link
-            href="/"
-            className="text-xs font-bold tracking-wider uppercase text-[#0B2545] hover:text-[#D96B27] transition-colors"
-          >
-            All
-          </Link>
-          <Link
-            href="/?category=tech"
-            className="text-xs font-bold tracking-wider uppercase text-[#0B2545] hover:text-[#D96B27] transition-colors hidden sm:inline-block"
-          >
-            Tech & Software
-          </Link>
-          <Link
-            href="/?category=electronics"
-            className="text-xs font-bold tracking-wider uppercase text-[#0B2545] hover:text-[#D96B27] transition-colors hidden sm:inline-block"
-          >
-            Electronics
-          </Link>
-          <Link
-            href="/?category=media"
-            className="text-xs font-bold tracking-wider uppercase text-[#0B2545] hover:text-[#D96B27] transition-colors hidden md:inline-block"
-          >
-            Magazines & Press
-          </Link>
-          <Link
-            href="/?category=lifestyle"
-            className="text-xs font-bold tracking-wider uppercase text-[#0B2545] hover:text-[#D96B27] transition-colors hidden md:inline-block"
-          >
-            Lifestyle
-          </Link>
+        <nav className="flex items-center gap-4 sm:gap-6 md:gap-8 overflow-x-auto no-scrollbar py-1">
+          {CATEGORIES.map((cat) => (
+            <Link
+              key={cat.id}
+              href={cat.id === 'all' ? '/' : `/?category=${cat.slug || cat.id}`}
+              className="text-xs font-bold tracking-wider uppercase text-[#0B2545] hover:text-[#D96B27] transition-colors whitespace-nowrap"
+            >
+              {cat.id === 'all' ? 'Todos' : cat.label.split('&')[0].trim()}
+            </Link>
+          ))}
           <Link
             href="/about"
-            className="text-xs font-bold tracking-wider uppercase text-[#5C6479] hover:text-[#D96B27] transition-colors"
+            className="text-xs font-bold tracking-wider uppercase text-[#5C6479] hover:text-[#D96B27] transition-colors whitespace-nowrap"
           >
             About
           </Link>
