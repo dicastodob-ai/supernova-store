@@ -48,54 +48,6 @@
     "tags": "cj,electronics,wondershare,featured"
   },
   {
-    "id": "cj-zinio-zn-monocle-annual-01",
-    "title": "Monocle Global Affairs & Design — 1-Year Digital Subscription",
-    "description": "10 issues of the world’s leading briefing on global affairs, business, culture, and architecture delivered seamlessly in crystal HD.\n • Interactive Digital Reader\n • Exclusive Audio Podcasts\n • Archive Access",
-    "price": 95,
-    "salePrice": 69,
-    "merchant": "Zinio",
-    "category": "books",
-    "affiliateUrl": "https://www.zinio.com/publications/monocle",
-    "imageUrl": "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=800&q=80",
-    "tags": "cj,books,zinio,featured"
-  },
-  {
-    "id": "cj-zinio-zn-wired-annual-02",
-    "title": "WIRED Magazine Pro — Artificial Intelligence & Future Tech",
-    "description": "Annual all-access digital subscription covering breakthroughs in frontier AI, quantum computing, cybersecurity, and future design.",
-    "price": 49.99,
-    "salePrice": 29.99,
-    "merchant": "Zinio",
-    "category": "books",
-    "affiliateUrl": "https://www.zinio.com/publications/wired",
-    "imageUrl": "https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=800&q=80",
-    "tags": "cj,books,zinio,featured"
-  },
-  {
-    "id": "cj-zinio-zn-architectural-digest-03",
-    "title": "Architectural Digest — Interior Architecture & Living",
-    "description": "The international authority on design and architecture. High-resolution photo spreads of the world’s most innovative homes.",
-    "price": 54,
-    "salePrice": 35,
-    "merchant": "Zinio",
-    "category": "books",
-    "affiliateUrl": "https://www.zinio.com/publications/architectural-digest",
-    "imageUrl": "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=800&q=80",
-    "tags": "cj,books,zinio,featured"
-  },
-  {
-    "id": "cj-zinio-zn-national-geographic-04",
-    "title": "National Geographic — Exploration & Science Edition",
-    "description": "12 monthly issues featuring award-winning photojournalism, climate research, ancient history, and deep-space exploration.",
-    "price": 39,
-    "salePrice": 25,
-    "merchant": "Zinio",
-    "category": "books",
-    "affiliateUrl": "https://www.zinio.com/publications/national-geographic",
-    "imageUrl": "https://images.unsplash.com/photo-1532012164546-f432f2e3777a?auto=format&fit=crop&w=800&q=80",
-    "tags": "cj,books,zinio,featured"
-  },
-  {
     "id": "cj-whokeys-wk-win11-pro-01",
     "title": "Microsoft Windows 11 Professional OEM Global Key",
     "description": "Instant digital activation key for Windows 11 Pro 64-bit. Unlocks BitLocker encryption, Remote Desktop, and Hyper-V virtualization.",
@@ -142,30 +94,6 @@
     "affiliateUrl": "https://www.ashampoo.com/backup-pro",
     "imageUrl": "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=800&q=80",
     "tags": "cj,electronics,ashampoosoftware,featured"
-  },
-  {
-    "id": "cj-abracadabranyc-abr-venetian-mask-01",
-    "title": "Handcrafted Venetian Masquerade Filigree Mask",
-    "description": "Authentic laser-cut laser filigree mask embellished with Swarovski crystals and double-faced satin ribbon ties.",
-    "price": 75,
-    "salePrice": 58,
-    "merchant": "AbracadabraNYC",
-    "category": "accessories",
-    "affiliateUrl": "https://abracadabranyc.com/products/venetian-filigree-mask",
-    "imageUrl": "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=800&q=80",
-    "tags": "cj,accessories,abracadabranyc,featured"
-  },
-  {
-    "id": "cj-abracadabranyc-abr-theatrical-cape-02",
-    "title": "Heavy Velvet Theatrical Cloak with Satin Lining",
-    "description": "Full-length midnight black cloak tailored with premium cotton velvet, deep cowl hood, and antique pewter clasp closure.",
-    "price": 145,
-    "salePrice": 119,
-    "merchant": "AbracadabraNYC",
-    "category": "accessories",
-    "affiliateUrl": "https://abracadabranyc.com/products/velvet-theatrical-cloak",
-    "imageUrl": "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=800&q=80",
-    "tags": "cj,accessories,abracadabranyc,featured"
   },
   {
     "id": "cj-396171f91d96be517603",
