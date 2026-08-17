@@ -30,12 +30,12 @@ export interface CategoryOption {
  * Configuración de categorías frontend limpias y estables
  */
 export const CATEGORIES: CategoryOption[] = [
-  { id: 'all', label: 'Todos los Productos', slug: 'all' },
-  { id: 'software', label: 'Software & Herramientas', slug: 'software' },
-  { id: 'magazines', label: 'Revistas & Prensa', slug: 'magazines' },
-  { id: 'tech', label: 'Tecnología & Accesorios', slug: 'tech' },
-  { id: 'electronics', label: 'Electrónica & Gadgets', slug: 'electronics' },
-  { id: 'audio', label: 'Audio & Sonido', slug: 'audio' },
+  { id: 'all', label: 'Todos', slug: 'all' },
+  { id: 'software', label: 'Software', slug: 'software' },
+  { id: 'magazines', label: 'Magazines', slug: 'magazines' },
+  { id: 'tech', label: 'Tech', slug: 'tech' },
+  { id: 'electronics', label: 'Electronics', slug: 'electronics' },
+  { id: 'audio', label: 'Audio', slug: 'audio' },
 ];
 
 export interface NetPresetOption {

@@ -52,29 +52,8 @@ export default function FilterBar({
           )}
         </div>
 
-        {/* Network Presets & Sort Filters */}
-        <div className="flex flex-wrap items-center gap-3">
-          {/* NET Presets Filter */}
-          <div className="flex items-center gap-1 bg-white border border-[#ECECE8] p-1 rounded-full shadow-sm">
-            <span className="text-[10px] uppercase font-bold tracking-wider px-2.5 text-[#5C6479] select-none">
-              NET:
-            </span>
-            {NET_PRESETS.map((preset) => (
-              <button
-                key={preset.id}
-                onClick={() => onNetworkChange(preset.id)}
-                className={`text-[11px] font-bold tracking-wide px-3 py-1.5 rounded-full transition-all ${
-                  activeNetwork.toLowerCase() === preset.id.toLowerCase()
-                    ? 'bg-[#0B2545] text-white shadow-sm'
-                    : 'bg-transparent text-[#2D3142] hover:text-[#D96B27]'
-                }`}
-              >
-                {preset.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Sort Dropdown */}
+        {/* Sort Filter */}
+        <div className="flex items-center gap-3">
           <div className="flex items-center gap-1 bg-white border border-[#ECECE8] p-1 rounded-full shadow-sm">
             <span className="text-[10px] uppercase font-bold tracking-wider px-2.5 text-[#5C6479] select-none">
               SORT:
@@ -94,7 +73,7 @@ export default function FilterBar({
         </div>
       </div>
 
-      {/* Curated Categories Bar */}
+      {/* 5 Master Categories Bar */}
       <div className="flex flex-wrap gap-2 items-center">
         <span className="text-[10px] uppercase font-bold tracking-wider text-[#5C6479] mr-1 select-none">
           CATEGORIES:
@@ -102,9 +81,9 @@ export default function FilterBar({
         {CATEGORIES.map((cat) => (
           <button
             key={cat.id}
-            onClick={() => onCategoryChange(cat.id)}
-            className={`text-[11px] font-bold tracking-wide px-3.5 py-1.5 rounded-full transition-all duration-150 ${
-              activeCategory.toLowerCase() === cat.id.toLowerCase()
+            onClick={() => onCategoryChange(cat.slug || cat.id)}
+            className={`text-xs font-bold tracking-wide px-4 py-2 rounded-full transition-all duration-150 ${
+              activeCategory.toLowerCase() === (cat.slug || cat.id).toLowerCase()
                 ? 'bg-[#D96B27] text-white shadow-sm'
                 : 'bg-white text-[#2D3142] border border-[#ECECE8] hover:border-[#D96B27] hover:text-[#D96B27]'
             }`}

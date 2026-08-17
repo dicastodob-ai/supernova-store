@@ -16,7 +16,7 @@ export default function Header() {
               href={cat.id === 'all' ? '/' : `/?category=${cat.slug || cat.id}`}
               className="text-xs font-bold tracking-wider uppercase text-[#0B2545] hover:text-[#D96B27] transition-colors whitespace-nowrap"
             >
-              {cat.id === 'all' ? 'Todos' : cat.label.split('&')[0].trim()}
+              {cat.label}
             </Link>
           ))}
           <Link

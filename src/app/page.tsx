@@ -14,10 +14,7 @@ function StoreContent() {
   const initialSearch = searchParams.get('search') || '';
 
   const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<string[]>([]);
-  const [networks, setNetworks] = useState<string[]>(['cj']);
   const [activeCategory, setActiveCategory] = useState<string>(initialCategory);
-  const [activeNetwork, setActiveNetwork] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'latest' | 'price_asc' | 'price_desc'>('latest');
   const [searchQuery, setSearchQuery] = useState<string>(initialSearch);
   const [debouncedSearch, setDebouncedSearch] = useState<string>(initialSearch);
@@ -53,7 +50,6 @@ function StoreContent() {
       params.set('page', currentPage.toString());
       params.set('pageSize', '24');
       if (activeCategory !== 'all') params.set('category', activeCategory);
-      if (activeNetwork !== 'all') params.set('network', activeNetwork);
       if (debouncedSearch.trim()) params.set('search', debouncedSearch.trim());
       if (sortBy !== 'latest') params.set('sortBy', sortBy);
 
@@ -65,19 +61,13 @@ function StoreContent() {
         setProducts(data.products || []);
         setTotalPages(data.totalPages || 1);
         setTotalProducts(data.total || 0);
-        if (data.categories && data.categories.length > 0) {
-          setCategories(data.categories);
-        }
-        if (data.networks && data.networks.length > 0) {
-          setNetworks(data.networks.filter((n: string) => n.toLowerCase() !== 'impact'));
-        }
       });
     } catch (err) {
       console.error('[FETCH_PRODUCTS_ERROR]', err);
     } finally {
       setLoading(false);
     }
-  }, [currentPage, activeCategory, activeNetwork, debouncedSearch, sortBy]);
+  }, [currentPage, activeCategory, debouncedSearch, sortBy]);
 
   useEffect(() => {
     fetchProducts();
@@ -100,11 +90,6 @@ function StoreContent() {
     updateUrlParams(cat, searchQuery);
   };
 
-  const handleNetworkChange = (net: string) => {
-    setActiveNetwork(net);
-    setCurrentPage(1);
-  };
-
   const handleSortChange = (sort: 'latest' | 'price_asc' | 'price_desc') => {
     setSortBy(sort);
     setCurrentPage(1);
@@ -122,7 +107,6 @@ function StoreContent() {
 
   const handleResetFilters = () => {
     setActiveCategory('all');
-    setActiveNetwork('all');
     setSearchQuery('');
     setDebouncedSearch('');
     setSortBy('latest');
@@ -139,18 +123,16 @@ function StoreContent() {
         {/* Instant Filters & Search Bar */}
         <section className="pb-16" id="catalog">
           <FilterBar
-          categories={categories}
-          networks={networks}
-          activeCategory={activeCategory}
-          activeNetwork={activeNetwork}
-          sortBy={sortBy}
-          searchQuery={searchQuery}
-          onCategoryChange={handleCategoryChange}
-          onNetworkChange={handleNetworkChange}
-          onSortChange={handleSortChange}
-          onSearchChange={handleSearchChange}
-          totalProducts={totalProducts}
-        />
+            activeCategory={activeCategory}
+            activeNetwork="all"
+            sortBy={sortBy}
+            searchQuery={searchQuery}
+            onCategoryChange={handleCategoryChange}
+            onNetworkChange={() => {}}
+            onSortChange={handleSortChange}
+            onSearchChange={handleSearchChange}
+            totalProducts={totalProducts}
+          />
 
         {/* Loading Skeleton or Products Grid */}
         {loading ? (
