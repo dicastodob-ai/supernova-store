@@ -1,0 +1,7 @@
+# Supernova Store Robots Exclusion Standard
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /tracking/
+
+Sitemap: https://supernovastore.humancentric.online/sitemap.xml
