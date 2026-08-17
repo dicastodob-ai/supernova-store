@@ -45,7 +45,7 @@ export function StoreCatalog() {
                   <span className="product-badge text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-[#F4F4F0] text-[#5C6479]">
                     {product.category}
                   </span>
-                  <span className="text-[10px] text-[#5C6479] font-medium">{product.merchant}</span>
+                  <span className="text-[10px] text-[#5C6479] font-medium">{(product as any).advertiser || (product as any).merchant || 'Supernova Partner'}</span>
                 </div>
                 <div className="aspect-[4/3] w-full rounded-lg bg-[#F9F9F8] overflow-hidden mb-3 flex items-center justify-center">
                   <img

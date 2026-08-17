@@ -205,6 +205,7 @@ for (const prod of rawProducts) {
     price: prod.price || prod.regular_price,
     salePrice: prod.salePrice || prod.sale_price || null,
     advertiser: prod.advertiser || 'Supernova Partner',
+    merchant: prod.advertiser || 'Supernova Partner',
     image: prod.image || prod.images || `${DOMAIN}/placeholder.jpg`,
     description: prod.description || prod.post_content || '',
     affiliateUrl,
