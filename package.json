@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "seo:build": "node scripts/seo-pipeline.js",
+    "build": "node scripts/seo-pipeline.js && next build",
     "start": "next start",
     "lint": "next lint",
     "import:feed": "node scripts/import-feed.js",
