@@ -1,11 +1,12 @@
 /**
  * PROYECTO SUPERNOVA STORE - MASTER SEO & TAXONOMY PIPELINE
- * Dominio: https://supernovastore.humancentric.online
+ * Dominio Oficial: https://supernovastore.humancentric.online
  * * Funcionalidades:
- * - Purga de anunciantes bloqueados (AliExpress, Booking, Abracadabra)
- * - Normalización de categorías y eliminación de ruido ("net", etc.)
- * - Generación de Schemas JSON-LD y botones con rel="sponsored nofollow"
- * - Creación dinámica de robots.txt y sitemap.xml
+ * 1. Purga estricta de anunciantes (AliExpress, Booking, Abracadabra)
+ * 2. Normalización de taxonomía en 5 categorías maestras (sin "net" ni ruido)
+ * 3. Enriquecimiento Schema.org JSON-LD (Product, Offer, BreadcrumbList)
+ * 4. Blindaje de enlaces de afiliación (rel="sponsored nofollow noopener")
+ * 5. Generación dinámica de robots.txt y sitemap.xml en /public
  */
 
 const fs = require('fs');
@@ -16,13 +17,14 @@ const OUTPUT_DIR = path.resolve(__dirname, '..', 'public');
 const INPUT_DATA_FILE = path.resolve(__dirname, '..', 'src', 'data', 'products.json');
 const OUTPUT_DATA_FILE = path.resolve(__dirname, '..', 'src', 'data', 'products.optimized.json');
 
-// Asegurar existencia de directorio de salida
+// Asegurar existencia del directorio público de Next.js
 if (!fs.existsSync(OUTPUT_DIR)) {
   fs.mkdirSync(OUTPUT_DIR, { recursive: true });
 }
 
 console.log('====================================================');
-console.log('🚀 INICIANDO PIPELINE MAESTRO DE SUPERNOVA STORE');
+console.log('🚀 INICIANDO MASTER SEO PIPELINE - SUPERNOVA STORE');
+console.log(`🌐 Dominio Canónico: ${DOMAIN}`);
 console.log('====================================================\n');
 
 // 1. CARGA DEL DATASET BASE
@@ -30,7 +32,7 @@ let rawProducts = [];
 try {
   const data = fs.readFileSync(INPUT_DATA_FILE, 'utf-8');
   rawProducts = JSON.parse(data);
-  console.log(`📦 Catálogo cargado: ${rawProducts.length} productos detectados en bruto.`);
+  console.log(`📦 Catálogo base cargado: ${rawProducts.length} productos detectados en bruto.`);
 } catch (error) {
   console.error(`❌ Error crítico al leer ${INPUT_DATA_FILE}:`, error.message);
   process.exit(1);
@@ -95,13 +97,13 @@ function assignCategory(rawCategory = '', rawName = '', advertiser = '') {
   const text = `${rawCategory} ${rawName} ${advertiser}`.toLowerCase();
   const adv = advertiser.toLowerCase();
 
-  // Asignación directa por anunciante principal
+  // Asignación prioritaria por anunciante clave
   if (adv.includes('ashampoo') || adv.includes('wondershare')) return MASTER_CATEGORIES.software;
   if (adv.includes('zinio')) return MASTER_CATEGORIES.magazines;
   if (adv.includes('rexing')) return MASTER_CATEGORIES.electronics;
   if (adv.includes('ucase') || adv.includes('ceneo')) return MASTER_CATEGORIES.tech;
 
-  // Asignación por palabras clave
+  // Asignación por coincidencia de palabras clave
   for (const key of ['software', 'magazines', 'audio', 'electronics', 'tech']) {
     for (const kw of MASTER_CATEGORIES[key].keywords) {
       if (text.includes(kw)) {
@@ -110,11 +112,11 @@ function assignCategory(rawCategory = '', rawName = '', advertiser = '') {
     }
   }
 
-  // Fallback por defecto si no coincide
+  // Categoría fallback por defecto
   return MASTER_CATEGORIES.tech;
 }
 
-// 4. SANITIZACIÓN DE ENLACES
+// 4. SANITIZACIÓN DE ENLACES EXTERNOS
 function sanitizeAffiliateUrl(url) {
   if (!url || typeof url !== 'string' || !url.startsWith('http')) {
     return `${DOMAIN}/catalogo`;
@@ -122,8 +124,8 @@ function sanitizeAffiliateUrl(url) {
   return encodeURI(url.trim());
 }
 
-// 5. PROCESAMIENTO Y FILTRADO
-console.log('🔹 Purgando anunciantes, normalizando categorías y generando Schemas...');
+// 5. PROCESAMIENTO, FILTRADO Y GENERACIÓN DE SCHEMAS
+console.log('🔹 Procesando productos, sanitizando afiliados y estructurando Schemas...');
 
 const cleanProducts = [];
 let purgedAdvertisers = 0;
@@ -132,19 +134,19 @@ let discardedInvalid = 0;
 for (const prod of rawProducts) {
   const adv = (prod.advertiser || prod.brand || '').toLowerCase();
 
-  // Filtro 1: Bloqueo de lista negra
+  // Filtro 1: Bloqueo de anunciantes en lista negra
   if (BLOCKED_ADVERTISERS.some(blocked => adv.includes(blocked))) {
     purgedAdvertisers++;
     continue;
   }
 
-  // Filtro 2: Validación de datos mínimos
+  // Filtro 2: Validación de datos mínimos requeridos
   if (!prod.name || (!prod.price && !prod.regular_price)) {
     discardedInvalid++;
     continue;
   }
 
-  // Categorización limpia
+  // Asignación normalizada de categoría
   const categoryObj = assignCategory(
     prod.category || prod.tax_product_cat || '',
     prod.name,
@@ -156,16 +158,16 @@ for (const prod of rawProducts) {
   const affiliateUrl = sanitizeAffiliateUrl(prod.affiliateUrl || prod.url || prod.product_url);
   const currentPrice = prod.salePrice || prod.sale_price || prod.price || prod.regular_price;
 
-  // Botón con atributos nofollow + sponsored obligatorios por Google
+  // Botón seguro de compra con rel="sponsored nofollow noopener"
   const safeButtonHtml = `<a href="${affiliateUrl}" target="_blank" rel="sponsored nofollow noopener" class="btn-vip">${prod.buttonText || 'Ver Oferta VIP'}</a>`;
 
-  // Schema.org JSON-LD para Google Rich Snippets
+  // Schema.org JSON-LD (Product + Offer)
   const schemaJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Product',
     'name': prod.name,
     'image': prod.image || prod.images || `${DOMAIN}/placeholder.jpg`,
-    'description': prod.description || prod.post_content || `Compra ${prod.name} con descuento exclusivo en Supernova Store.`,
+    'description': prod.description || prod.post_content || `Adquiere ${prod.name} con descuento exclusivo en Supernova Store.`,
     'sku': prod.sku || `SPN-${prod.id || slug.slice(0, 8)}`,
     'brand': {
       '@type': 'Brand',
@@ -186,6 +188,7 @@ for (const prod of rawProducts) {
     }
   };
 
+  // Schema.org BreadcrumbList
   const breadcrumbJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
@@ -201,7 +204,7 @@ for (const prod of rawProducts) {
     name: prod.name,
     slug,
     category: categoryObj.name,
-    categorySlug: categoryObj.slug, // Clave exacta para el filtro del frontend
+    categorySlug: categoryObj.slug, // Clave exacta para el filtrado reactivo del menú
     price: prod.price || prod.regular_price,
     salePrice: prod.salePrice || prod.sale_price || null,
     advertiser: prod.advertiser || 'Supernova Partner',
@@ -218,15 +221,15 @@ for (const prod of rawProducts) {
   });
 }
 
-// Guardar archivo optimizado que consume la web
+// Guardar archivo optimizado que consume el frontend de Next.js
 fs.writeFileSync(OUTPUT_DATA_FILE, JSON.stringify(cleanProducts, null, 2));
 
-console.log(`✅ Catálogo limpio generado en ${OUTPUT_DATA_FILE}`);
+console.log(`✅ Catálogo limpio guardado en: ${OUTPUT_DATA_FILE}`);
 console.log(`   - Productos activos y verificados: ${cleanProducts.length}`);
 console.log(`   - Productos bloqueados (AliExpress/Booking/Abracadabra): ${purgedAdvertisers}`);
 console.log(`   - Registros descartados por falta de datos: ${discardedInvalid}\n`);
 
-// 6. GENERACIÓN DE ARCHIVOS DE RASTREO (SEO FASE 2)
+// 6. GENERACIÓN DE ARCHIVOS DE RASTREO
 console.log('🔹 Generando robots.txt y sitemap.xml...');
 
 // 6.1 robots.txt
@@ -255,6 +258,7 @@ let sitemapXml = `<?xml version="1.0" encoding="UTF-8"?>
   </url>
 `;
 
+// Categorías activas
 activeCategorySlugs.forEach((catSlug) => {
   sitemapXml += `  <url>
     <loc>${DOMAIN}/categoria/${catSlug}</loc>
@@ -264,6 +268,7 @@ activeCategorySlugs.forEach((catSlug) => {
   </url>\n`;
 });
 
+// Fichas de producto canónicas
 cleanProducts.forEach((prod) => {
   sitemapXml += `  <url>
     <loc>${prod.canonicalUrl}</loc>
@@ -278,5 +283,5 @@ fs.writeFileSync(path.join(OUTPUT_DIR, 'sitemap.xml'), sitemapXml);
 
 console.log(`✅ public/sitemap.xml generado con ${1 + activeCategorySlugs.length + cleanProducts.length} URLs totales.`);
 console.log('\n====================================================');
-console.log('🎉 PIPELINE COMPLETADO: LISTO PARA EL DESPLIEGUE');
+console.log('🎉 MASTER SEO PIPELINE COMPLETADO CON ÉXITO');
 console.log('====================================================');
