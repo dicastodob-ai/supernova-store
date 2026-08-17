@@ -2,9 +2,9 @@
  * PROYECTO SUPERNOVA STORE - MASTER SEO & TAXONOMY PIPELINE
  * Dominio Oficial: https://supernovastore.humancentric.online
  * * Categorías Oficiales Activas:
- * 1. Software (slug: 'software')
- * 2. Electrónica (slug: 'electronics')
- * 3. Tech & Gadgets (slug: 'tech') - Incluye Ceneo, fundas, cables, gadgets
+ * 1. Software (slug: 'software') - Wondershare, Ashampoo, licencias, utilidades
+ * 2. Electrónica (slug: 'electronics') - Rexing, Aurzen, proyectores, cámaras, gadgets
+ * 3. Tech & Gadgets (slug: 'tech') - Ceneo, Ucase, hardware, accesorios, cables
  * * Anunciantes Purgados: Booking, AliExpress, Abracadabra, Zinio
  */
 
@@ -54,17 +54,17 @@ const MASTER_CATEGORIES = {
   software: {
     name: 'Software',
     slug: 'software',
-    keywords: ['software', 'ashampoo', 'wondershare', 'antivirus', 'utility', 'pdf', 'driver', 'backup', 'licencia', 'filmora', 'burning']
+    keywords: ['software', 'ashampoo', 'wondershare', 'antivirus', 'utility', 'pdf', 'driver', 'backup', 'licencia', 'filmora', 'burning', 'windows', 'office']
   },
   electronics: {
     name: 'Electrónica',
     slug: 'electronics',
-    keywords: ['electronics', 'rexing', 'dash cam', 'camera', 'cámara', 'gadget', 'sensor', 'gps', 'display', 'radar']
+    keywords: ['electronics', 'rexing', 'aurzen', 'projector', 'proyector', 'dash cam', 'camera', 'cámara', 'gadget', 'sensor', 'gps', 'display', 'radar', 'drone']
   },
   tech: {
     name: 'Tech & Gadgets',
     slug: 'tech',
-    keywords: ['ceneo', 'ucase', 'case', 'funda', 'cable', 'charger', 'cargador', 'adapter', 'tech', 'tecnología', 'usb', 'audio', 'sound', 'headphone', 'auricular', 'speaker', 'altavoz', 'hub']
+    keywords: ['ceneo', 'ucase', 'case', 'funda', 'cable', 'charger', 'cargador', 'adapter', 'tech', 'tecnología', 'usb', 'audio', 'sound', 'headphone', 'auricular', 'speaker', 'altavoz', 'hub', 'hardware', 'gadgets']
   }
 };
 
@@ -74,7 +74,7 @@ function assignCategory(rawCat = '', rawName = '', advertiser = '') {
 
   // Asignación directa por anunciante
   if (adv.includes('ashampoo') || adv.includes('wondershare')) return MASTER_CATEGORIES.software;
-  if (adv.includes('rexing')) return MASTER_CATEGORIES.electronics;
+  if (adv.includes('rexing') || adv.includes('aurzen')) return MASTER_CATEGORIES.electronics;
   if (adv.includes('ceneo') || adv.includes('ucase')) return MASTER_CATEGORIES.tech;
 
   // Asignación por palabras clave
