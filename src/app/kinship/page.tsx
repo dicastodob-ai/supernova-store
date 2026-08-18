@@ -38,7 +38,7 @@ const BUNDLE_OPTIONS: BundleOption[] = [
     ],
     ctaText: 'COMPRAR 1 UNIDAD — $28.00',
     isPopular: false,
-    affiliateUrl: 'https://www.anrdoezrs.net/links/7999396/type/dlg/sid/getkinship_1x/https://lovekinship.com/products/self-reflect-probiotic-moisturizing-sunscreen-zinc-oxide-spf-32'
+    affiliateUrl: 'https://www.anrdoezrs.net/links/7999396/type/dlg/sid/getkinship_1x/https://lovekinship.com/search?q=Self+Reflect'
   },
   {
     id: 'duo',
@@ -60,7 +60,7 @@ const BUNDLE_OPTIONS: BundleOption[] = [
     ],
     ctaText: 'RECLAMAR PACK DÚO (15% OFF) — $47.60',
     isPopular: true,
-    affiliateUrl: 'https://www.anrdoezrs.net/links/7999396/type/dlg/sid/getkinship_2x/https://lovekinship.com/products/self-reflect-probiotic-moisturizing-sunscreen-zinc-oxide-spf-32'
+    affiliateUrl: 'https://www.anrdoezrs.net/links/7999396/type/dlg/sid/getkinship_2x/https://lovekinship.com/search?q=Self+Reflect'
   },
   {
     id: 'routine',
@@ -84,7 +84,7 @@ const BUNDLE_OPTIONS: BundleOption[] = [
     ],
     ctaText: 'OBTENER KIT RUTINA (25% OFF) — $84.00',
     isPopular: false,
-    affiliateUrl: 'https://www.anrdoezrs.net/links/7999396/type/dlg/sid/getkinship_kit/https://lovekinship.com/collections/bundles-sets'
+    affiliateUrl: 'https://www.anrdoezrs.net/links/7999396/type/dlg/sid/getkinship_kit/https://lovekinship.com/collections/best-sellers'
   }
 ];
 
