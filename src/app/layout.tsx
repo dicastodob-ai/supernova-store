@@ -56,7 +56,16 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 })(window,document,'script','dataLayer','GTM-KGXQPFT6');`,
           }}
         />
-        {/* End Google Tag Manager */}
+        {/* Script Universal de Rastreo de Impact (UTT) */}
+        <Script
+          id="impact-utt"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `(function(i,m,p,a,c,t){c.ire_o=p;c[p]=c[p]||function(){(c[p].a=c[p].a||[]).push(arguments)};t=a.createElement(m);var z=a.getElementsByTagName(m)[0];t.async=1;t.src=i;z.parentNode.insertBefore(t,z)})('https://utt.impactcdn.com/P-A7661331-5a1a-4db3-a9bf-b5f64a0559881.js','script','impactStat',document,window);
+impactStat('transformLinks');
+impactStat('trackImpression');`,
+          }}
+        />
       </head>
       <body className={`${inter.variable} ${plusJakartaSans.variable} font-body antialiased bg-[#F9F9F8] text-[#2D3142] min-h-screen flex flex-col`}>
         {/* Google Tag Manager (noscript) */}
