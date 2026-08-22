@@ -28,6 +28,9 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   title: 'SUPERNOVA — Curated Affiliate Store',
   description: 'A minimalist, curated storefront featuring handpicked products from top brands. Affiliate powered.',
+  other: {
+    'impact-site-verification': '2ea13a73-5da2-4fdd-b008-3bd019660d81',
+  },
 };
 
 export default function RootLayout({
