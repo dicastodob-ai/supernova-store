@@ -10,6 +10,7 @@
     "lint": "next lint",
     "import:feed": "node scripts/import-feed.js",
     "sync:cj": "node scripts/fetch-cj-api.js",
+    "sync:impact": "node scripts/sync-impact-sftp.js",
     "validate:catalog": "node scripts/validate-massive-catalog.js",
     "validate:links": "node scripts/validate-massive-catalog.js",
     "test:cj": "node scripts/test-cj-links.js",
@@ -25,7 +26,8 @@
     "next": "^15.3.0",
     "p-limit": "^7.3.1",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "ssh2-sftp-client": "^12.1.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.0",
