@@ -63,6 +63,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           />
         </noscript>
         {/* End Google Tag Manager (noscript) */}
+        {/* Código de verificación de Impact */}
+        <div style={{ display: 'none' }} aria-hidden="true">
+          Impact-Site-Verification: 2ea13a73-5da2-4fdd-b008-3bd019660d81
+        </div>
         <CJLinkRepair />
         <AppShell>
           {children}
